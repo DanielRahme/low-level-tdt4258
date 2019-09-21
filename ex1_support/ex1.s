@@ -118,71 +118,191 @@ _reset:
 	str r2, [r0, #GPIO_EXTIRISE]	// trigger at falling edge
 	str r2, [r0, #GPIO_IEN]			// enable interrupts
 	str r5, [r4]					// enable interrupt handling
-
+	
+	ldr r4, =leds
+	mov r5, 0x8000
+	str r5, [r4]
+	
+	ldr r4, =blinker
+	mov r5, 0x5500
+	str r5, [r4]
+	
+	ldr r4, =buttons
+	mov r5, 0x40
+	str r5, [r4]
+	
+	ldr r4, =speed
+	mov r5, #0x81000
+	str r5, [r4]
+	
+	ldr r4, =state
+	mov r5, #1
+	str r5, [r4]
 	    
 /*------start of main code-------*/
+
+
 main:	
 	ldr r0, =GPIO_PA_BASE	
-	ldr r4, =led 			//led address
-	ldr r5, [r4]
-	str r5, [r0, #GPIO_DOUT]
+	bl state_select
+	ldr r2, =state
+	ldr r3, [r2]
+	cmp r3, #1
+	beq shift_led_left
+	cmp r3, #2
+	beq shift_led_right
+	cmp r3, #3
+	beq blink
 	b main
-		    
+	
+state_select:
+	push {lr}
+	ldr r4, =buttons		// button address
+	ldr r6, =state			// state address
+	ldr r5, [r4]			// load button press 
 
+	cmp r5, #0x01				// if button 1 
+	bne not_button1				// is not pressed skip
+	mov r7, #1					// else store left shift state (1)
+	str r7, [r6]				// to the state
+not_button1:
+	cmp r5, #0x02				// if button 2 
+	bne not_button2				// is not pressed skip
+	ldr r8, =blinker			// else retrive blinker address
+	ldr r9, =leds				// and the leds address
+	ldr r10, [r9]				// retrive the current led position
+	str r10, [r8]				// store current led position as blinker
+	mov r7, #3					// store the blinker state (3)
+	str r7, [r6]				// to the state
+not_button2:
+
+	cmp r5, #0x04				// if button 3 
+	bne not_button3				// is not pressed skip
+	ldr r8, =blinker			// else retrive blinker address
+	mov r10, #0x5500			// set alternating pattern
+	str r10, [r8]				// store alternating pattern as blinker
+	mov r7, #3					// store the blinker state (3)
+	str r7, [r6]				// to the state
+not_button3:
+
+	cmp r5, #0x08				// if button 4 
+	bne not_button4				// is not pressed skip
+	ldr r8, =blinker			// else retrive blinker address
+	mov r10, #0xff00			// set all leds to the same value
+	str r10, [r8]				// store same as blinker
+	mov r7, #3					// store the blinker state (3)
+	str r7, [r6]				// to the state
+not_button4:
+
+	cmp r5, #0x10				// if button 5 
+	bne not_button5				// is not pressed skip
+								// else do nothing
+not_button5:
+
+	cmp r5, #0x20				// if button 6 
+	bne not_button6				// is not pressed skip
+	bl increase_speed			// else increase the speed 
+not_button6:
+
+	cmp r5, #0x40				// if button 7 
+	bne not_button7				// is not pressed skip
+	mov r7, #2					// else store the right shift state
+	str r7, [r6]				// to the state
+not_button7:
+
+	cmp r5, #0x80				// if button 8 
+	bne not_button8				// is not pressed skip
+	bl decrease_speed			// else decrease the speed
+not_button8:
+	mov r9, 0x0000				
+	str r9, [r4]				//reset buttons
+	pop {lr}
+	bx lr    					// return
+
+
+		
 shift_led_right:
-	eor r4, r2, r3		// toggle led bits
-	str r4, [r0, #GPIO_DOUT]// write output leds
-	cmp r2, 0x8000		// checks if led is at the last stop
-	beq reset_right		// reset the led position
-	lsl r2, r2, #1		// shift led to the right on the board
-	right_end:
-	b delay_right		// delay between shifts
-		
+	ldr r0, =GPIO_PA_BASE
+	ldr r5, =leds				// led address
+	ldr r2, [r5]				// led values
+	mov r3, #0xff00				// bits to toggle
+	eor r4, r2, r3				// toggle led bits
+	str r4, [r0, #GPIO_DOUT]	// write output leds
+	cmp r2, 0x8000				// checks if led is at the last stop
+	beq reset_right				// reset the led position
+	lsl r2, r2, #1				// shift led to the right on the board
+right_end:	
+	str r2, [r5]
+	bl delay				// delay between shifts
+	b main					// return to main
+
 reset_right:
-	mov r2, 0x0100		// reset led position
-	b right_end		// return to right shift loop			
-
+	mov r2, 0x0100			// reset led position
+	b right_end				// return to right shift loop			
+			
 shift_led_left:
-	eor r4, r2, r3		// toggle led bits
+	ldr r0, =GPIO_PA_BASE
+	ldr r5, =leds			// led address
+	ldr r2, [r5]			// led values
+	mov r3, #0xff00			// bits to toggle
+	eor r4, r2, r3			// toggle led bits
 	str r4, [r0, #GPIO_DOUT]// write output leds
-	cmp r2, 0x0100		// checks if led is at the last stop
-	beq reset_left		// reset the led position
-	lsr r2, r2, #1		// shift led to the left on the board
-left_end:
-	b delay_left		// delay between shifts	
-reset_left:
-	mov r2, 0x8000		// reset led position
-	b left_end		// return to left shift loop			 
-		
-blink:
-	mov r4, #0x5500	
-blink_loop:
-	str r4, [r0, #GPIO_DOUT]
-	eor r4, r4, r3
-	b delay_blink
+	cmp r2, 0x0100			// checks if led is at the last stop
+	beq reset_left			// reset the led position
+	lsr r2, r2, #1			// shift led to the left on the board
+left_end:	
+	str r2, [r5]
+	bl delay				// delay between shifts
+	b main
 
-delay_right: 
-	mov r1, #0x100000	// number of loops
-delay_right_loop:
+reset_left:
+	mov r2, 0x8000			// reset led position
+	b right_end				// return to left shift loop			
+			
+
+blink:
+	ldr r0, =GPIO_PA_BASE	
+	ldr r5, =blinker		// blinker address
+	ldr r2, [r5]			// blinker values
+	str r2, [r0, #GPIO_DOUT]
+	mov r3, #0xff00
+	eor r2, r2, r3
+	str r2, [r5]
+	bl delay
+	b main
+
+delay: 
+	ldr r3, =speed
+	ldr r1, [r3]
+delay_loop:
 	sub	r1, r1, #1		// i--
 	cmp r1, #0			// compare against zero
-	bne delay_right_loop	// loop if not zero
-	b shift_led_right	// return to shift left loop	
-delay_left: 
-	mov r1, #0x100000	// number of loops
-delay_left_loop:
-	sub	r1, r1, #1		// i--
-	cmp r1, #0			// compare against zero
-	bne delay_left_loop	// loop if not zero
-	b shift_led_left	// return to shift left loop 
-delay_blink: 
-	mov r1, #0x100000	// number of loops, i=n
-delay_blink_loop:
-	sub	r1, r1, #1		// i--
-	cmp r1, #0			// compare against zero
-	bne delay_blink_loop	// loop if not zero
-	b blink_loop	// return to blink loop 
-		
+	bne delay_loop		// loop if not zero
+	bx lr				// return	
+	
+decrease_speed:
+	push {lr}
+	ldr r8, =speed
+	ldr r9, [r8]
+	cmp r9, #0x100000
+	bgt decrease_end
+	add r9, r9, #0x10000
+decrease_end:
+	str r9, [r8]
+	pop {lr}
+	bx lr
+
+increase_speed:
+	push {lr}
+	ldr r8, =speed
+	ldr r9, [r8]
+	cmp r9, #0x13000
+	blt increase_end
+	sub r9, r9, #0x10000
+increase_end:
+	str r9, [r8]
+	pop {lr}
+	bx lr
 	
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -193,26 +313,14 @@ delay_blink_loop:
 	
         .thumb_func
 gpio_handler:  
-	ldr r1, =GPIO_BASE
-	ldr r3, [r1, GPIO_IF]	// read interrupt flags
-	ldr r4, =led 			//led address
-	ldr r5, [r4]			//load led value
-	mov r6, #0xff00			//for toggeling
-	eor r5, r5, r6			// toggle led
-	str r5, [r4]			// store toggled led
-	str r3, [r1, GPIO_IFC]	// clear interrupt flags
-	bx lr 
-	
-	/*
-	str r3, [r1, GPIO_IFC]	// clear interrupt flags
-	cmp r3, #0x1
-	beq shift_led_left  	//if sw1 pressed then shift led left
-	cmp r3, #0x2
-	beq blink
-	cmp r3, #0x4
-	beq shift_led_right
-	b _reset
-	*/
+
+	ldr r8, =GPIO_BASE
+	ldr r9, [r8, GPIO_IF]	// read interrupt flags
+	ldr r10, =buttons		// read button address
+	str r9, [r10]			// store button presses
+	str r9, [r8, GPIO_IFC]	// clear interrupt flags
+	bx lr	
+
 	/////////////////////////////////////////////////////////////////////////////
 	
         .thumb_func
@@ -224,6 +332,14 @@ cmu_base_addr:
 			.long CMU_BASE
 			
 	.section .data
-led:
-	.word 0x5500
+buttons:
+	.word 0
+leds:
+	.word 0
+blinker:
+	.word 0
+speed: 
+	.word 0
+state:
+	.word 0
 	

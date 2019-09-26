@@ -394,8 +394,10 @@ gpio_handler:
 timer_handler:
 		push {r0 - r11}
 		ldr r0, CMU_BASE
-		ldr r1, [r0, 0x030]	// CMU interrupt flag
+		ldr r1, [r0, #0x030]	// CMU interrupt flag
 		
+
+		str r1, [r0, #0x038]
 		pop {r0 - r11}
 		bx lr
 

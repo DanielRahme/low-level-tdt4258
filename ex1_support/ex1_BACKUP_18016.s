@@ -152,7 +152,11 @@ _reset:
 
 
 main:	
+<<<<<<< HEAD
+	MOV R0, #0xb110
+=======
 	MOV R0, #0x0b110
+>>>>>>> 1f8d8d4fc7a8f67f2c9d1701fc96cb566c3e3e84
     LDR R1, =SCR
     STR R0, [R1]
     WFI

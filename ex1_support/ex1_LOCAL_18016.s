@@ -101,11 +101,6 @@ _reset:
 	ldr r0, =GPIO_PA_BASE
 	mov r2, #0x55555555 
 	str r2, [r0, #GPIO_MODEH]
-	
-	// disable ramblock
-	mov r2, #7
-	ldr r1, =EMU_BASE
-    str r2, [r0]
 	    
 	// set high drive strength
 	mov r3, #0x3
@@ -152,7 +147,7 @@ _reset:
 
 
 main:	
-	MOV R0, #0x0b110
+	MOV R0, #0xb110
     LDR R1, =SCR
     STR R0, [R1]
     WFI

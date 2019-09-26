@@ -121,6 +121,16 @@ _reset:
 	str r1, [r0, 0x068]		// LFAPRESC0
 	mov r1, 0x4
 	str r1, [r0, 0x03c]		// CMU_IEN
+	ldr r0, =0x40082000		//LETIMER_BASE
+	mov r1, 0x100
+	str r1, [r0, 0]			// LETIMERn_CTRL
+	mov r1, 0x10
+	str r1, [r0, 0x010]		// LETIMERn_COMP0
+	mov r1, 0x4
+	str r1, [r0, 0x02c]		// LETIMERn_IEN
+	mov r1, 0x0
+	str r1, [r0, 0x004]		// LETIMERn_CMD
+
 	    
 	//enable interrupts
 	ldr r0, =GPIO_BASE
@@ -159,15 +169,8 @@ _reset:
 	mov r5, #0xff00
 	str r5, [r4]
 	    
-<<<<<<< HEAD
-	ldr r1, =SCR
-	mov r2, #6	
-	str r2, [r1]
-
-=======
 		
 	
->>>>>>> 7324310e0855f523daf5a5fcd24e839b82e6475b
 /*------start of main code-------*/
 
 

@@ -169,7 +169,10 @@ _reset:
 	mov r5, #0xff00
 	str r5, [r4]
 	    
-		
+	ldr r1, =SCR
+    mov r2, #6    
+    str r2, [r1]
+    wfi    	
 	
 /*------start of main code-------*/
 

@@ -105,7 +105,7 @@ _reset:
 	// disable ramblock
 	mov r2, #7
 	ldr r1, =EMU_BASE
-    str r2, [r0]
+    str r2, [r0,#EMU_CTRL]
 	    
 	// set high drive strength
 	mov r3, #0x3
@@ -159,11 +159,8 @@ _reset:
 	mov r5, #0xff00
 	str r5, [r4]
 	    
-	ldr r1, =SCR
-	mov r2, #6	
-	str r2, [r1]
-	wfi	
-	.thumb_func
+		
+	
 /*------start of main code-------*/
 
 

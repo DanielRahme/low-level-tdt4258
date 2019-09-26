@@ -91,7 +91,20 @@ _reset:
 	str r2, [r1, #CMU_HFPERCLKEN0]	
 	//activate LE clock
 	mov r2, #0x10
-	str r2, [r0, #0x040]		// LFCORE
+	//str r2, [r0, #0x040]		// HFCORE
+
+	
+	// set high drive strength
+	mov r3, #0x3
+	str r3, [r0, #GPIO_CTRL]
+
+	// set port A 8-15 to output    
+	ldr r0, =GPIO_PA_BASE
+	mov r2, #0x55555555 
+	str r2, [r0, #GPIO_MODEH]
+	//initialize LEDs
+	mov r3, #0xfe00
+	str r3, [r0, #GPIO_DOUT]
 
 
 	// set port C 0-7 as input
@@ -101,17 +114,8 @@ _reset:
 	str r2, [r1, #GPIO_MODEL]
 	str r3, [r1, #GPIO_DOUT]
 	
-	// set port A 8-15 to output    
-	ldr r0, =GPIO_PA_BASE
-	mov r2, #0x55555555 
-	str r2, [r0, #GPIO_MODEH]
-	//initialize LEDs
-	mov r3, #0xfe00
-	str r3, [r0, #GPIO_DOUT]
-	
-	// set high drive strength
-	mov r3, #0x3
-	str r3, [r0, #GPIO_CTRL]
+
+
 
 // timer clock
 	ldr r0, cmu_base_addr
@@ -119,8 +123,8 @@ _reset:
 	str r1, [r0, #0x028]		// LFCLKSEL
 	mov r1, #0x6
 	str r1, [r0, #0x058]		// LFACLKEN
-	mov r1, #0x200
-	str r1, [r0, #0x068]		// LFAPRESC0
+	//mov r1, #0x200
+	//str r1, [r0, #0x068]		// LFAPRESC0
 	    
 	//enable interrupts
 	ldr r0, =GPIO_BASE
@@ -135,10 +139,11 @@ _reset:
 	str r3, [r0, #GPIO_EXTIFALL]	// trigger at falling edge
 	str r2, [r0, #GPIO_EXTIRISE]	// trigger at rising edge
 	str r2, [r0, #GPIO_IEN]			// enable interrupts
-	
+	str r5, [r4]					// enable interrupt handler
+
 	// LETIMER0 setup
 	ldr r0, =LETIMER_BASE		//LETIMER_BASE
-	mov r1, #0x100
+	mov r1, #0x1000
 	str r1, [r0, #0x010]		// LETIMERn_COMP0
 	mov r1, #0x100
 	str r1, [r0, #0]			// LETIMERn_CTRL
@@ -179,6 +184,15 @@ _reset:
 	
 
 /*------start of main code-------*/
+/*
+temp:
+ldr r0, =LETIMER_BASE
+ldr r1, [r0, #0x8]
+lsl r1, r1, #8
+ldr r5, =GPIO_PA_BASE
+str r1, [r5, #GPIO_DOUT]
+b temp  
+*/
 
 main:	
 	wfi

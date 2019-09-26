@@ -147,6 +147,10 @@ _reset:
 
 
 main:	
+	MOV R0, #0b110
+    LDR R1, =SCR
+    STR R0, [R1]
+    WFI
 	ldr r0, =GPIO_PA_BASE	
 	bl state_select
 	ldr r2, =state

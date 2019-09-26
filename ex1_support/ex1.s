@@ -113,6 +113,8 @@ _reset:
 
 	// timer interrupt
 	ldr r0, =CMU_BASE
+	mov r1, 0x10
+	str r1, [r0, 0x040]		// LFCLKSEL
 	mov r1, 0x10000
 	str r1, [r0, 0x028]		// LFCLKSEL
 	mov r1, 0x6
@@ -120,8 +122,8 @@ _reset:
 	mov r1, 0x600
 	str r1, [r0, 0x068]		// LFAPRESC0
 	mov r1, 0x4
-	str r1, [r0, 0x03c]		// CMU_IEN
-	ldr r0, =0x40082000		//LETIMER_BASE
+	//str r1, [r0, 0x03c]		// CMU_IEN
+	ldr r0, =LETIMER_BASE		//LETIMER_BASE
 	mov r1, 0x100
 	str r1, [r0, 0]			// LETIMERn_CTRL
 	mov r1, 0x10
@@ -139,6 +141,8 @@ _reset:
 	mov r2, #0xff
 	mov r3, #0x00
 	ldr r5, =#0x802
+	mov r6, #1<<26
+	orr r5, r5, r6
 	str r1, [r0, #GPIO_EXTIPSELL]	// select interrupt pins
 	str r3, [r0, #GPIO_EXTIFALL]	// trigger at falling edge
 	str r2, [r0, #GPIO_EXTIRISE]	// trigger at rising edge
@@ -169,16 +173,17 @@ _reset:
 	mov r5, #0xff00
 	str r5, [r4]
 	    
+	
+	
+	
 	ldr r1, =SCR
     mov r2, #6    
-    str r2, [r1]
-    wfi    	
+    str r2, [r1]   	
 	
 /*------start of main code-------*/
 
 
 main:	
-	
 	ldr r0, =GPIO_PA_BASE	
 	bl state_select
 	ldr r2, =state
@@ -335,7 +340,6 @@ reset_left:
 	mov r2, 0x8000			// reset led position
 	b left_end				// return to left shift loop			
 			
-
 blink:
 	ldr r0, =GPIO_PA_BASE	
 	ldr r5, =blinker		// blinker address
@@ -352,13 +356,13 @@ blink:
 /////////////////////////////////////////////
 
 delay: 
-	ldr r3, =speed
+/*	ldr r3, =speed
 	ldr r1, [r3]
 delay_loop:
 	sub	r1, r1, #1		// i--
 	cmp r1, #0			// compare against zero
 	bne delay_loop		// loop if not zero
-	bx lr				// return	
+*/	bx lr				// return	
 	
 decrease_speed:
 	push {lr}
@@ -405,10 +409,13 @@ gpio_handler:
 		.thumb_func
 timer_handler:
 		push {r0 - r11}
-		ldr r0, =CMU_BASE
-		ldr r1, [r0, #0x030]	// CMU interrupt flag
-
-		str r1, [r0, #0x038]	// clear interrupt flag
+		ldr r0, =LETIMER_BASE
+		ldr r1, [r0, #0x020]	// LETIMER interrupt flag
+		str r1, [r0, #0x028]	// clear LETIMER interrupt flag
+		ldr r0, =GPIO_PA_BASE	
+		mov r5, #0xff00
+		ldr r2, [r5]			
+		str r2, [r0, #GPIO_DOUT]
 		pop {r0 - r11}
 		bx lr
 

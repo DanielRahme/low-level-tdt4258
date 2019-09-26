@@ -55,7 +55,7 @@
 	      .long   dummy_handler
 	      .long   dummy_handler
 	      .long   dummy_handler
-	      .long   dummy_handler
+	      .long   timer_handler
 	      .long   dummy_handler
 	      .long   dummy_handler
 	      .long   dummy_handler
@@ -110,6 +110,17 @@ _reset:
 	// set high drive strength
 	mov r3, #0x3
 	str r3, [r0, #GPIO_CTRL]
+
+	// timer interrupt
+	ldr r0, =CMU_BASE
+	mov r1, 0x10001
+	str r1, [r0, 0x028]
+	mov r1, 0x6
+	str r1, [r0, 0x058]
+	mov r1, 0x600
+	str r1, [r0, 0x068]
+	mov r1, 0x4
+	str r1, [r0, 0x03c]
 	    
 	//enable interrupts
 	ldr r0, =GPIO_BASE
@@ -381,7 +392,11 @@ gpio_handler:
 	/////////////////////////////////////////////////////////////////////////////
 		.thumb_func
 timer_handler:
+		push {r0 - r11}
+		ldr r0, CMU_BASE
+		ldr r1, [r0, 0x030]	// CMU interrupt flag
 		
+		pop {r0 - r11}
 		bx lr
 
         .thumb_func

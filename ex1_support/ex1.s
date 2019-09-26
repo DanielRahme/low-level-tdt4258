@@ -379,11 +379,14 @@ gpio_handler:
 	bx lr	
 
 	/////////////////////////////////////////////////////////////////////////////
-	
+		.thumb_func
+timer_handler:
+		
+		bx lr
+
         .thumb_func
 dummy_handler:  
         b .  // do nothing
-
 
 cmu_base_addr:
 			.long CMU_BASE

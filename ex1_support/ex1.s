@@ -82,14 +82,18 @@
 	      .type   _reset, %function
         .thumb_func
 _reset: 
-	// activate GPIO 
+	// activate GPIO clock
 	ldr r1, cmu_base_addr
 	ldr r2, [r1, #CMU_HFPERCLKEN0] 
 	mov r3, #1
 	lsl r3, r3, #CMU_HFPERCLKEN0_GPIO
 	orr r2, r2, r3
 	str r2, [r1, #CMU_HFPERCLKEN0]	
+	//activate LE clock
+	mov r2, 0x10
+	str r2, [r0, #0x040]		// LFCORE
 	
+
 	// set port C 0-7 as input
 	ldr r1, =GPIO_PC_BASE
 	mov r2, #0x33333333
@@ -101,37 +105,24 @@ _reset:
 	ldr r0, =GPIO_PA_BASE
 	mov r2, #0x55555555 
 	str r2, [r0, #GPIO_MODEH]
+	//initialize LEDs
+	mov r3, #0xfe00
+	str r3, [r0, #GPIO_DOUT]
 	
-	// disable ramblock
-	mov r2, #7
-	ldr r1, =EMU_BASE
-    str r2, [r0,#EMU_CTRL]
-	    
 	// set high drive strength
 	mov r3, #0x3
 	str r3, [r0, #GPIO_CTRL]
 
-	// timer interrupt
-	ldr r0, =CMU_BASE
-	mov r1, 0x10
-	str r1, [r0, 0x040]		// LFCLKSEL
+// timer clock
+	ldr r0, cmu_base_addr
 	mov r1, 0x10000
-	str r1, [r0, 0x028]		// LFCLKSEL
+	str r1, [r0, #0x028]		// LFCLKSEL
 	mov r1, 0x6
-	str r1, [r0, 0x058]		// LFACLKEN
-	mov r1, 0x600
-	str r1, [r0, 0x068]		// LFAPRESC0
+	str r1, [r0, #0x058]		// LFACLKEN
+	mov r1, 0x200
+	str r1, [r0, #0x068]		// LFAPRESC0
 	mov r1, 0x4
-	//str r1, [r0, 0x03c]		// CMU_IEN
-	ldr r0, =LETIMER_BASE		//LETIMER_BASE
-	mov r1, 0x100
-	str r1, [r0, 0]			// LETIMERn_CTRL
-	mov r1, 0x10
-	str r1, [r0, 0x010]		// LETIMERn_COMP0
-	mov r1, 0x4
-	str r1, [r0, 0x02c]		// LETIMERn_IEN
-	mov r1, 0x0
-	str r1, [r0, 0x004]		// LETIMERn_CMD
+
 
 	    
 	//enable interrupts
@@ -147,18 +138,34 @@ _reset:
 	str r3, [r0, #GPIO_EXTIFALL]	// trigger at falling edge
 	str r2, [r0, #GPIO_EXTIRISE]	// trigger at rising edge
 	str r2, [r0, #GPIO_IEN]			// enable interrupts
-	str r5, [r4]					// enable interrupt handling
 	
+	// LETIMER0 setup
+	ldr r0, =LETIMER_BASE		//LETIMER_BASE
+	mov r1, 0x100
+	str r1, [r0, #0x010]		// LETIMERn_COMP0
+	mov r1, 0x100
+	str r1, [r0, #0]			// LETIMERn_CTRL
+	mov r1, 0x4
+	str r1, [r0, #0x02c]		// LETIMERn_IEN
+	mov r1, 0x1	
+	str r1, [r0, #0x004]		// LETIMERn_CMD
+
+	// enable sleep
+	ldr r1, =SCR
+    mov r2, #4    
+    str r2, [r1]   	
+	
+	// variable init
 	ldr r4, =leds
 	mov r5, 0x8000
 	str r5, [r4]
 	
 	ldr r4, =blinker
-	mov r5, 0x5500
+	mov r5, #0x5500
 	str r5, [r4]
 	
 	ldr r4, =buttons
-	mov r5, 0x40
+	mov r5, #0x40
 	str r5, [r4]
 	
 	ldr r4, =speed
@@ -171,19 +178,13 @@ _reset:
 	
 	ldr r4, =inverter
 	mov r5, #0xff00
-	str r5, [r4]
-	    
+	str r5, [r4]  
 	
-	
-	
-	ldr r1, =SCR
-    mov r2, #6    
-    str r2, [r1]   	
-	
+
 /*------start of main code-------*/
 
-
 main:	
+	wfi
 	ldr r0, =GPIO_PA_BASE	
 	bl state_select
 	ldr r2, =state
@@ -412,10 +413,8 @@ timer_handler:
 		ldr r0, =LETIMER_BASE
 		ldr r1, [r0, #0x020]	// LETIMER interrupt flag
 		str r1, [r0, #0x028]	// clear LETIMER interrupt flag
-		ldr r0, =GPIO_PA_BASE	
-		mov r5, #0xff00
-		ldr r2, [r5]			
-		str r2, [r0, #GPIO_DOUT]
+		mov r1, 0x1	
+		str r1, [r0, #0x004]		// LETIMERn_CMD
 		pop {r0 - r11}
 		bx lr
 

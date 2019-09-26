@@ -41,21 +41,21 @@
 	      .long   dummy_handler
 	      .long   dummy_handler
 	      .long   gpio_handler            /* GPIO odd handler */
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   dummy_handler
-	      .long   timer_handler
+	      .long   dummy_handler			//12
+	      .long   dummy_handler			//13
+	      .long   dummy_handler			//14
+	      .long   dummy_handler			//15
+	      .long   dummy_handler			//16
+	      .long   dummy_handler			//17
+	      .long   dummy_handler			//18
+	      .long   dummy_handler			//19
+	      .long   dummy_handler			//20
+	      .long   dummy_handler			//21
+	      .long   dummy_handler			//22
+	      .long   dummy_handler			//23
+	      .long   dummy_handler			//24
+	      .long   dummy_handler			//25
+	      .long   timer_handler			//26
 	      .long   dummy_handler
 	      .long   dummy_handler
 	      .long   dummy_handler
@@ -113,14 +113,14 @@ _reset:
 
 	// timer interrupt
 	ldr r0, =CMU_BASE
-	mov r1, 0x10001
-	str r1, [r0, 0x028]
+	mov r1, 0x10000
+	str r1, [r0, 0x028]		// LFCLKSEL
 	mov r1, 0x6
-	str r1, [r0, 0x058]
+	str r1, [r0, 0x058]		// LFACLKEN
 	mov r1, 0x600
-	str r1, [r0, 0x068]
+	str r1, [r0, 0x068]		// LFAPRESC0
 	mov r1, 0x4
-	str r1, [r0, 0x03c]
+	str r1, [r0, 0x03c]		// CMU_IEN
 	    
 	//enable interrupts
 	ldr r0, =GPIO_BASE
@@ -162,8 +162,7 @@ _reset:
 	ldr r1, =SCR
 	mov r2, #6	
 	str r2, [r1]
-	wfi	
-	.thumb_func
+
 /*------start of main code-------*/
 
 
@@ -395,11 +394,10 @@ gpio_handler:
 		.thumb_func
 timer_handler:
 		push {r0 - r11}
-		ldr r0, CMU_BASE
+		ldr r0, =CMU_BASE
 		ldr r1, [r0, #0x030]	// CMU interrupt flag
-		
 
-		str r1, [r0, #0x038]
+		str r1, [r0, #0x038]	// clear interrupt flag
 		pop {r0 - r11}
 		bx lr
 

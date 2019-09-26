@@ -159,14 +159,16 @@ _reset:
 	mov r5, #0xff00
 	str r5, [r4]
 	    
+	ldr r1, =SCR
+	mov r2, #6	
+	str r2, [r1]
+	wfi	
+	.thumb_func
 /*------start of main code-------*/
 
 
 main:	
-	MOV R0, #0x0b110
-    LDR R1, =SCR
-    STR R0, [R1]
-    WFI
+	
 	ldr r0, =GPIO_PA_BASE	
 	bl state_select
 	ldr r2, =state

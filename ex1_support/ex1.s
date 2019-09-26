@@ -90,14 +90,14 @@ _reset:
 	orr r2, r2, r3
 	str r2, [r1, #CMU_HFPERCLKEN0]	
 	//activate LE clock
-	mov r2, 0x10
+	mov r2, #0x10
 	str r2, [r0, #0x040]		// LFCORE
-	
+
 
 	// set port C 0-7 as input
 	ldr r1, =GPIO_PC_BASE
 	mov r2, #0x33333333
-	mov r3, 0xff
+	mov r3, #0xff
 	str r2, [r1, #GPIO_MODEL]
 	str r3, [r1, #GPIO_DOUT]
 	
@@ -115,15 +115,12 @@ _reset:
 
 // timer clock
 	ldr r0, cmu_base_addr
-	mov r1, 0x10000
+	mov r1, #0x10000
 	str r1, [r0, #0x028]		// LFCLKSEL
-	mov r1, 0x6
+	mov r1, #0x6
 	str r1, [r0, #0x058]		// LFACLKEN
-	mov r1, 0x200
+	mov r1, #0x200
 	str r1, [r0, #0x068]		// LFAPRESC0
-	mov r1, 0x4
-
-
 	    
 	//enable interrupts
 	ldr r0, =GPIO_BASE
@@ -132,7 +129,7 @@ _reset:
 	mov r2, #0xff
 	mov r3, #0x00
 	ldr r5, =#0x802
-	mov r6, #1<<26
+	mov r6, #(1<<26)
 	orr r5, r5, r6
 	str r1, [r0, #GPIO_EXTIPSELL]	// select interrupt pins
 	str r3, [r0, #GPIO_EXTIFALL]	// trigger at falling edge
@@ -141,13 +138,13 @@ _reset:
 	
 	// LETIMER0 setup
 	ldr r0, =LETIMER_BASE		//LETIMER_BASE
-	mov r1, 0x100
+	mov r1, #0x100
 	str r1, [r0, #0x010]		// LETIMERn_COMP0
-	mov r1, 0x100
+	mov r1, #0x100
 	str r1, [r0, #0]			// LETIMERn_CTRL
-	mov r1, 0x4
+	mov r1, #0x4
 	str r1, [r0, #0x02c]		// LETIMERn_IEN
-	mov r1, 0x1	
+	mov r1, #0x1	
 	str r1, [r0, #0x004]		// LETIMERn_CMD
 
 	// enable sleep
@@ -157,7 +154,7 @@ _reset:
 	
 	// variable init
 	ldr r4, =leds
-	mov r5, 0x8000
+	mov r5, #0x8000
 	str r5, [r4]
 	
 	ldr r4, =blinker
@@ -293,7 +290,7 @@ select_sleep:
 
 reset_buttons:
 	ldr r4, =buttons		// button address
-	mov r9, 0x0000				
+	mov r9, #0x0000				
 	str r9, [r4]				//reset buttons
 	bx lr
 	
@@ -309,7 +306,7 @@ shift_led_right:
 	ldr r3, [r7]				// bits to toggle
 	eor r4, r2, r3				// toggle led bits
 	str r4, [r0, #GPIO_DOUT]	// write output leds
-	cmp r2, 0x8000				// checks if led is at the last stop
+	cmp r2, #0x8000				// checks if led is at the last stop
 	beq reset_right				// reset the led position
 	lsl r2, r2, #1				// shift led to the right on the board
 right_end:	
@@ -318,7 +315,7 @@ right_end:
 	b main					// return to main
 
 reset_right:
-	mov r2, 0x0100			// reset led position
+	mov r2, #0x0100			// reset led position
 	b right_end				// return to right shift loop			
 			
 shift_led_left:
@@ -329,7 +326,7 @@ shift_led_left:
 	ldr r3, [r7]			// bits to toggle
 	eor r4, r2, r3			// toggle led bits
 	str r4, [r0, #GPIO_DOUT]// write output leds
-	cmp r2, 0x0100			// checks if led is at the last stop
+	cmp r2, #0x0100			// checks if led is at the last stop
 	beq reset_left			// reset the led position
 	lsr r2, r2, #1			// shift led to the left on the board
 left_end:	
@@ -338,7 +335,7 @@ left_end:
 	b main
 
 reset_left:
-	mov r2, 0x8000			// reset led position
+	mov r2, #0x8000			// reset led position
 	b left_end				// return to left shift loop			
 			
 blink:
@@ -413,7 +410,7 @@ timer_handler:
 		ldr r0, =LETIMER_BASE
 		ldr r1, [r0, #0x020]	// LETIMER interrupt flag
 		str r1, [r0, #0x028]	// clear LETIMER interrupt flag
-		mov r1, 0x1	
+		mov r1, #0x1	
 		str r1, [r0, #0x004]		// LETIMERn_CMD
 		pop {r0 - r11}
 		bx lr

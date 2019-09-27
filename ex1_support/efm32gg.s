@@ -42,8 +42,11 @@ CMU_BASE = 0x400c8000
 
 CMU_HFPERCLKDIV = 0x008
 CMU_HFPERCLKEN0 = 0x044
-
+CMU_HFCORECLKEN0 = 0x40
 CMU_HFPERCLKEN0_GPIO = 13
+CMU_LFCLKSEL = 0x28
+CMU_LFCLKEN0 = 0x58
+CMU_PRESEC0 = 0x68
 
 //////////////////////////////////////////////////////////////////////
 // NVIC

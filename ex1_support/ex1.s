@@ -91,7 +91,7 @@ _reset:
 	str r2, [r1, #CMU_HFPERCLKEN0]	
 	//activate LE clock
 	mov r2, #0x10
-	//str r2, [r0, #0x040]		// HFCORE
+	str r2, [r1, #CMU_HFCORECLKEN0]		// HFCORE
 
 	
 	// set high drive strength
@@ -115,47 +115,47 @@ _reset:
 	str r3, [r1, #GPIO_DOUT]
 	
 
-
-
 // timer clock
 	ldr r0, cmu_base_addr
 	mov r1, #0x10000
-	str r1, [r0, #0x028]		// LFCLKSEL
+	str r1, [r0, #CMU_LFCLKSEL]		// LFCLKSEL
 	mov r1, #0x6
-	str r1, [r0, #0x058]		// LFACLKEN
+	str r1, [r0, #CMU_LFCLKEN0]		// LFACLKEN
 	//mov r1, #0x200
-	//str r1, [r0, #0x068]		// LFAPRESC0
-	    
+	//str r1, [r0, #CMU_PRESEC0]	// LFAPRESC0
+
+
+	// LETIMER0 setup
+	ldr r0, =LETIMER_BASE		//LETIMER_BASE
+	mov r1, #0x100
+	str r1, [r0, #LETIMER_COMP0]		// LETIMERn_COMP0
+	mov r1, #(1<<9)
+	str r1, [r0, #LETIMER_CTRL]			// LETIMERn_CTRL
+	mov r1, #0x4
+	str r1, [r0, #LETIMER_IEN]		// LETIMERn_IEN
+	mov r1, #0x1	
+	str r1, [r0, #LETIMER_CMD]		// LETIMERn_CMD
+
+
 	//enable interrupts
 	ldr r0, =GPIO_BASE
-	ldr r4, =ISER0
 	mov r1, #0x22222222
 	mov r2, #0xff
 	mov r3, #0x00
-	ldr r5, =#0x802
-	mov r6, #(1<<26)
-	orr r5, r5, r6
 	str r1, [r0, #GPIO_EXTIPSELL]	// select interrupt pins
 	str r3, [r0, #GPIO_EXTIFALL]	// trigger at falling edge
 	str r2, [r0, #GPIO_EXTIRISE]	// trigger at rising edge
 	str r2, [r0, #GPIO_IEN]			// enable interrupts
+	ldr r4, =ISER0
+	ldr r5, =#0x802
+	mov r6, #(1<<26)
+	orr r5, r5, r6
 	str r5, [r4]					// enable interrupt handler
 
-	// LETIMER0 setup
-	ldr r0, =LETIMER_BASE		//LETIMER_BASE
-	mov r1, #0x1000
-	str r1, [r0, #0x010]		// LETIMERn_COMP0
-	mov r1, #0x100
-	str r1, [r0, #0]			// LETIMERn_CTRL
-	mov r1, #0x4
-	str r1, [r0, #0x02c]		// LETIMERn_IEN
-	mov r1, #0x1	
-	str r1, [r0, #0x004]		// LETIMERn_CMD
-
 	// enable sleep
-	ldr r1, =SCR
+	ldr r1, =SCR 
     mov r2, #4    
-    str r2, [r1]   	
+    str r2, [r1] 
 	
 	// variable init
 	ldr r4, =leds
@@ -171,7 +171,7 @@ _reset:
 	str r5, [r4]
 	
 	ldr r4, =speed
-	mov r5, #0x81000
+	mov r5, #0x100
 	str r5, [r4]
 	
 	ldr r4, =state
@@ -181,22 +181,23 @@ _reset:
 	ldr r4, =inverter
 	mov r5, #0xff00
 	str r5, [r4]  
+
+		
+	ldr r4, =timerIRQ
+	mov r5, #0x0
+	str r5, [r4]  
 	
-
 /*------start of main code-------*/
-/*
-temp:
-ldr r0, =LETIMER_BASE
-ldr r1, [r0, #0x8]
-lsl r1, r1, #8
-ldr r5, =GPIO_PA_BASE
-str r1, [r5, #GPIO_DOUT]
-b temp  
-*/
-
-main:	
+main:
+	ldr r4, =timerIRQ	//reset LETIMER flag
+	mov r5, #0x0
+	str r5, [r4]	
 	wfi
-	ldr r0, =GPIO_PA_BASE	
+	ldr r4, =timerIRQ
+	ldr r5, [r4]
+	cmp r5, #0x100		// if timerIRQ is 
+	bne main			// is not 0x100 then branch to main
+
 	bl state_select
 	ldr r2, =state
 	ldr r3, [r2]
@@ -224,7 +225,7 @@ state_select:
 	beq select_invert				
 	
 	cmp r5, #0x08					// if button 4 is pressed
-	beq select_sleep			 
+	beq select_led_positional_blink			 
 
 	cmp r5, #0x10					// if button 5 is pressed 
 	beq select_left			 
@@ -281,12 +282,12 @@ select_increase:
 	bl increase_speed			// increase the speed 
 	b state_select_end
 	
-select_right:			// is not pressed skip
+select_right:					
 	mov r7, #2					// else store the right shift state
 	str r7, [r6]				// to the state	
 	b state_select_end
 	
-select_decrease:				// is not pressed skip
+select_decrease:				
 	bl decrease_speed			// else decrease the speed
 	b state_select_end
 	
@@ -297,10 +298,6 @@ select_invert:
 	eor r8, r8, r9
 	str r8, [r7]
 	b state_select_end
-	
-select_sleep:
-	//// sleep code ///
-	b state_select_end	
 
 reset_buttons:
 	ldr r4, =buttons		// button address
@@ -325,7 +322,6 @@ shift_led_right:
 	lsl r2, r2, #1				// shift led to the right on the board
 right_end:	
 	str r2, [r5]
-	bl delay				// delay between shifts
 	b main					// return to main
 
 reset_right:
@@ -345,7 +341,6 @@ shift_led_left:
 	lsr r2, r2, #1			// shift led to the left on the board
 left_end:	
 	str r2, [r5]
-	bl delay				// delay between shifts
 	b main
 
 reset_left:
@@ -360,30 +355,22 @@ blink:
 	mov r3, #0xff00
 	eor r2, r2, r3
 	str r2, [r5]
-	bl delay
 	b main
 
 /////////////////////////////////////////////
 // other functions
-/////////////////////////////////////////////
-
-delay: 
-/*	ldr r3, =speed
-	ldr r1, [r3]
-delay_loop:
-	sub	r1, r1, #1		// i--
-	cmp r1, #0			// compare against zero
-	bne delay_loop		// loop if not zero
-*/	bx lr				// return	
+/////////////////////////////////////////////	
 	
 decrease_speed:
 	push {lr}
 	ldr r8, =speed
 	ldr r9, [r8]
-	cmp r9, #0x100000
+	cmp r9, #0x200
 	bgt decrease_end
-	add r9, r9, #0x10000
+	add r9, r9, #0x10
 decrease_end:
+	ldr r10, =LETIMER_BASE
+	str r9, [r10, #LETIMER_COMP0]
 	str r9, [r8]
 	pop {lr}
 	bx lr
@@ -392,10 +379,12 @@ increase_speed:
 	push {lr}
 	ldr r8, =speed
 	ldr r9, [r8]
-	cmp r9, #0x13000
+	cmp r9, #0x11
 	blt increase_end
-	sub r9, r9, #0x10000
+	sub r9, r9, #0x10
 increase_end:
+	ldr r10, =LETIMER_BASE
+	str r9, [r10, #LETIMER_COMP0]
 	str r9, [r8]
 	pop {lr}
 	bx lr
@@ -420,14 +409,15 @@ gpio_handler:
 	/////////////////////////////////////////////////////////////////////////////
 		.thumb_func
 timer_handler:
-		push {r0 - r11}
-		ldr r0, =LETIMER_BASE
-		ldr r1, [r0, #0x020]	// LETIMER interrupt flag
-		str r1, [r0, #0x028]	// clear LETIMER interrupt flag
-		mov r1, #0x1	
-		str r1, [r0, #0x004]		// LETIMERn_CMD
-		pop {r0 - r11}
-		bx lr
+	push {r0 - r12}
+	ldr r0, =LETIMER_BASE
+	ldr r1, [r0, #LETIMER_IF]	// LETIMER interrupt flag
+	str r1, [r0, #LETIMER_IFC]	// clear LETIMER interrupt flag	
+	ldr r4, =timerIRQ		
+	mov r5, #0x100
+	str r5, [r4]				// interrupt filtering flag
+	pop {r0 - r12}
+	bx lr
 
         .thumb_func
 dummy_handler:  
@@ -438,15 +428,17 @@ cmu_base_addr:
 			
 	.section .data
 buttons:
-	.word 0
+	.word 0	// thsi is used to store which button was pressed. ensures that button press is only used once
 leds:
-	.word 0
+	.word 0	// this is used as the position of the moving LED
 blinker:
-	.word 0
+	.word 0	// this is used as the blinking pattern to alternate
 speed: 
-	.word 0
+	.word 0	// this is used to modify the speed (frequency)
 state:
-	.word 0
+	.word 0	// this is used to select the desired led behavior
 inverter:
-	.word 0	
+	.word 0	// This is used to invert the output of the moving LED
+timerIRQ:	
+	.word 0	// This is used to filter out the LETIMER interrupts from the button interrupts
 	

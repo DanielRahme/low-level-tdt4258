@@ -154,7 +154,7 @@ _reset:
 
 	// enable sleep
 	ldr r1, =SCR 
-    mov r2, #6    
+    mov r2, #4    
     str r2, [r1] 
 	
 	// variable init
@@ -183,9 +183,17 @@ _reset:
 	str r5, [r4]  
 	
 /*------start of main code-------*/
-
 main:	
 	wfi
+	bl state_select
+	ldr r2, =state
+	ldr r3, [r2]
+	cmp r3, #1
+	beq shift_led_left
+	cmp r3, #2
+	beq shift_led_right
+	cmp r3, #3
+	beq blink
 	b main
 	
 state_select:
@@ -306,7 +314,7 @@ shift_led_right:
 right_end:	
 	str r2, [r5]
 	bl delay				// delay between shifts
-	b timer_handler_end					// return to main
+	b main					// return to main
 
 reset_right:
 	mov r2, #0x0100			// reset led position
@@ -326,7 +334,7 @@ shift_led_left:
 left_end:	
 	str r2, [r5]
 	bl delay				// delay between shifts
-	b timer_handler_end
+	b main
 
 reset_left:
 	mov r2, #0x8000			// reset led position
@@ -341,7 +349,7 @@ blink:
 	eor r2, r2, r3
 	str r2, [r5]
 	bl delay
-	b timer_handler_end
+	b main
 
 /////////////////////////////////////////////
 // other functions
@@ -400,24 +408,12 @@ gpio_handler:
 	/////////////////////////////////////////////////////////////////////////////
 		.thumb_func
 timer_handler:
-		push {r0 - r12}
-		ldr r0, =LETIMER_BASE
-		ldr r1, [r0, #LETIMER_IF]	// LETIMER interrupt flag
-		str r1, [r0, #LETIMER_IFC]	// clear LETIMER interrupt flag	
-		
-		bl state_select
-		ldr r2, =state
-		ldr r3, [r2]
-		cmp r3, #1
-		beq shift_led_left
-		cmp r3, #2
-		beq shift_led_right
-		cmp r3, #3
-		beq blink
-timer_handler_end:		
-		pop {r0 - r12}
-		wfi
-		bx lr
+	push {r0 - r12}
+	ldr r0, =LETIMER_BASE
+	ldr r1, [r0, #LETIMER_IF]	// LETIMER interrupt flag
+	str r1, [r0, #LETIMER_IFC]	// clear LETIMER interrupt flag	
+	pop {r0 - r12}
+	bx lr
 
         .thumb_func
 dummy_handler:  

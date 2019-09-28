@@ -101,40 +101,40 @@ _reset:
 	// set port A 8-15 to output    
 	ldr r0, =GPIO_PA_BASE
 	mov r2, #0x55555555 
-	str r2, [r0, #GPIO_MODEH]
+	str r2, [r0, #GPIO_MODEH]	// sets PORTA as output 
 	//initialize LEDs
 	mov r3, #0xfe00
-	str r3, [r0, #GPIO_DOUT]
+	str r3, [r0, #GPIO_DOUT]	// sets the left most LED as high as the default
 
 
 	// set port C 0-7 as input
 	ldr r1, =GPIO_PC_BASE
 	mov r2, #0x33333333
 	mov r3, #0xff
-	str r2, [r1, #GPIO_MODEL]
-	str r3, [r1, #GPIO_DOUT]
+	str r2, [r1, #GPIO_MODEL] // sets PORTC in filtered input mode
+	str r3, [r1, #GPIO_DOUT]  // Pull up
 	
 
 // timer clock
 	ldr r0, cmu_base_addr
 	mov r1, #0x10000
-	str r1, [r0, #CMU_LFCLKSEL]		// LFCLKSEL
+	str r1, [r0, #CMU_LFCLKSEL]		// selects the ULFRCO as the low frequency clock
 	mov r1, #0x6
-	str r1, [r0, #CMU_LFCLKEN0]		// LFACLKEN
+	str r1, [r0, #CMU_LFCLKEN0]		// Enables the low frequency clock
 	//mov r1, #0x200
-	//str r1, [r0, #CMU_PRESEC0]	// LFAPRESC0
+	//str r1, [r0, #CMU_PRESEC0]	// LFAPRESC0	clock prescaler
 
 
 	// LETIMER0 setup
-	ldr r0, =LETIMER_BASE		//LETIMER_BASE
-	mov r1, #0x100
-	str r1, [r0, #LETIMER_COMP0]		// LETIMERn_COMP0
+	ldr r0, =LETIMER_BASE		 // LETIMER_BASE
+	mov r1, #0x100				 
+	str r1, [r0, #LETIMER_COMP0] // compare register: sets the frequency of the LETIMER interrupt
 	mov r1, #(1<<9)
-	str r1, [r0, #LETIMER_CTRL]			// LETIMERn_CTRL
+	str r1, [r0, #LETIMER_CTRL]	 // sets the compare regiser as the top of the LETIMER counter
 	mov r1, #0x4
-	str r1, [r0, #LETIMER_IEN]		// LETIMERn_IEN
+	str r1, [r0, #LETIMER_IEN]	 // Enables the LETIMER, and sets the interrupt to trigger when the counter underflows
 	mov r1, #0x1	
-	str r1, [r0, #LETIMER_CMD]		// LETIMERn_CMD
+	str r1, [r0, #LETIMER_CMD]	 // starts the LETIMER
 
 
 	//enable interrupts
@@ -142,20 +142,20 @@ _reset:
 	mov r1, #0x22222222
 	mov r2, #0xff
 	mov r3, #0x00
-	str r1, [r0, #GPIO_EXTIPSELL]	// select interrupt pins
-	str r3, [r0, #GPIO_EXTIFALL]	// trigger at falling edge
-	str r2, [r0, #GPIO_EXTIRISE]	// trigger at rising edge
-	str r2, [r0, #GPIO_IEN]			// enable interrupts
+	str r1, [r0, #GPIO_EXTIPSELL]	// select PORTC as interrupt pins 
+	str r3, [r0, #GPIO_EXTIFALL]	// dissable falling edge interrupt trigger
+	str r2, [r0, #GPIO_EXTIRISE]	// enable ising edge interrupt trigger
+	str r2, [r0, #GPIO_IEN]			// enable GPIO interrupts
 	ldr r4, =ISER0
-	ldr r5, =#0x802
-	mov r6, #(1<<26)
-	orr r5, r5, r6
-	str r5, [r4]					// enable interrupt handler
+	ldr r5, =#0x802					// GPIO handler, mov instruction does not work for #0x802
+	mov r6, #(1<<26)				// LETIMER handler
+	orr r5, r5, r6					
+	str r5, [r4]					// enable interrupt handlers 
 
 	// enable sleep
 	ldr r1, =SCR 
     mov r2, #4    
-    str r2, [r1] 
+    str r2, [r1] 	// enters deep sleep when waiting for interrupt
 	
 	// variable init
 	ldr r4, =leds
@@ -192,17 +192,17 @@ main:
 	ldr r4, =timerIRQ	//reset LETIMER flag
 	mov r5, #0x0
 	str r5, [r4]	
-	wfi
-	ldr r4, =timerIRQ
+	wfi					// enter deep sleep and wait for interrupt
+	ldr r4, =timerIRQ	// load timerIRQ
 	ldr r5, [r4]
-	cmp r5, #0x100		// if timerIRQ is 
+	cmp r5, #0x100		// if timerIRQ  
 	bne main			// is not 0x100 then branch to main
-
-	bl state_select
-	ldr r2, =state
+						// else
+	bl state_select		// interperate the button presses
+	ldr r2, =state		// load state
 	ldr r3, [r2]
-	cmp r3, #1
-	beq shift_led_left
+	cmp r3, #1			// find out which state to branch to
+	beq shift_led_left	// branch to the correct state
 	cmp r3, #2
 	beq shift_led_right
 	cmp r3, #3
@@ -210,38 +210,38 @@ main:
 	b main
 	
 state_select:
-	push {lr}
+	push {lr}				// pushing the linker register in order to branch and link within the state select 
 	ldr r4, =buttons		// button address
 	ldr r6, =state			// state address
 	ldr r5, [r4]			// load button press 
 
 	cmp r5, #0x01					// if button 1 is pressed
-	beq select_full_blink				 
+	beq select_full_blink			// blink all of the LEDs		 
 
 	cmp r5, #0x02					// if button 2 is pressed
-	beq select_alternating_blink 
+	beq select_alternating_blink 	// blink every other LED
 
 	cmp r5, #0x04					// if button 3 is pressed
-	beq select_invert				
+	beq select_invert				// invert the output of the moving LED
 	
 	cmp r5, #0x08					// if button 4 is pressed
-	beq select_led_positional_blink			 
+	beq select_led_positional_blink	// blink based the moving LED possition
 
 	cmp r5, #0x10					// if button 5 is pressed 
-	beq select_left			 
+	beq select_left			 		// move the LED left
 
 	cmp r5, #0x20					// if button 6 is pressed 
-	beq select_increase				 
+	beq select_increase				// increase the speed/frequency of the LETIMER => blink/move LED faster
 
 	cmp r5, #0x40					// if button 7 is pressed 
-	beq select_right				 
+	beq select_right				// move the LED right
 
 	cmp r5, #0x80					// if button 8  is pressed
-	beq select_decrease				
+	beq select_decrease				// decrease the speed/frequency of the LETIMER => blink/move LED slower
 
 state_select_end:
-	bl reset_buttons
-	pop {lr}
+	bl reset_buttons				// reset the button press. Ensures that each button press is only read once and not continually 
+	pop {lr}						
 	bx lr    					// return
 
 //////////////////////////////////////////
@@ -249,12 +249,12 @@ state_select_end:
 //////////////////////////////////////////
 
 select_left:
-	mov r7, #1					// else store left shift state (1)
+	mov r7, #1					// store left shift state (1)
 	str r7, [r6]				// to the state
 	b state_select_end
 	
 select_led_positional_blink: 
-	ldr r8, =blinker			// else retrive blinker address
+	ldr r8, =blinker			// retrive blinker address
 	ldr r9, =leds				// and the leds address
 	ldr r10, [r9]				// retrive the current led position
 	str r10, [r8]				// store current led position as blinker
@@ -263,7 +263,7 @@ select_led_positional_blink:
 	b state_select_end
 	
 select_alternating_blink:		
-	ldr r8, =blinker			// else retrive blinker address
+	ldr r8, =blinker			// retrive blinker address
 	mov r10, #0x5500			// set alternating pattern
 	str r10, [r8]				// store alternating pattern as blinker
 	mov r7, #3					// store the blinker state (3)
@@ -271,7 +271,7 @@ select_alternating_blink:
 	b state_select_end
 
 select_full_blink:				
-	ldr r8, =blinker			// else retrive blinker address
+	ldr r8, =blinker			// retrive blinker address
 	mov r10, #0xff00			// set all leds to the same value
 	str r10, [r8]				// store same as blinker
 	mov r7, #3					// store the blinker state (3)
@@ -283,13 +283,13 @@ select_increase:
 	b state_select_end
 	
 select_right:					
-	mov r7, #2					// else store the right shift state
+	mov r7, #2					// store the right shift state
 	str r7, [r6]				// to the state	
 	b state_select_end
 	
 select_decrease:				
-	bl decrease_speed			// else decrease the speed
-	b state_select_end
+	bl decrease_speed			// decrease the speed
+	b state_select_end			
 	
 select_invert:
 	ldr r7, =inverter
@@ -300,7 +300,7 @@ select_invert:
 	b state_select_end
 
 reset_buttons:
-	ldr r4, =buttons		// button address
+	ldr r4, =buttons			// button address
 	mov r9, #0x0000				
 	str r9, [r4]				//reset buttons
 	bx lr
@@ -349,12 +349,12 @@ reset_left:
 			
 blink:
 	ldr r0, =GPIO_PA_BASE	
-	ldr r5, =blinker		// blinker address
-	ldr r2, [r5]			// blinker values
-	str r2, [r0, #GPIO_DOUT]
-	mov r3, #0xff00
-	eor r2, r2, r3
-	str r2, [r5]
+	ldr r5, =blinker		 // load blinker address
+	ldr r2, [r5]			 // laod blinker values
+	str r2, [r0, #GPIO_DOUT] // set blikner to the LED output
+	mov r3, #0xff00				
+	eor r2, r2, r3			// invert blinker
+	str r2, [r5]			// store inverted blinker
 	b main
 
 /////////////////////////////////////////////
@@ -362,16 +362,16 @@ blink:
 /////////////////////////////////////////////	
 	
 decrease_speed:
-	push {lr}
-	ldr r8, =speed
-	ldr r9, [r8]
-	cmp r9, #0x200
-	bgt decrease_end
-	add r9, r9, #0x10
+	push {lr}			
+	ldr r8, =speed		//load the current speed of the timer
+	ldr r9, [r8]		 
+	cmp r9, #0x200		// if the current speed
+	bgt decrease_end	// is smaller than 0x200, then
+	add r9, r9, #0x10	// decrease the speed by 0x10
 decrease_end:
-	ldr r10, =LETIMER_BASE
-	str r9, [r10, #LETIMER_COMP0]
-	str r9, [r8]
+	ldr r10, =LETIMER_BASE			
+	str r9, [r10, #LETIMER_COMP0]	// store the new speed in the compare0 register
+	str r9, [r8]					// store the new speed in speed register (not really needed anymore if compare0 register is used instead )
 	pop {lr}
 	bx lr
 
@@ -400,10 +400,10 @@ increase_end:
 gpio_handler:  
 
 	ldr r8, =GPIO_BASE
-	ldr r9, [r8, GPIO_IF]	// read interrupt flags
+	ldr r9, [r8, GPIO_IF]	// read GPIO interrupt flags
 	ldr r10, =buttons		// read button address
-	str r9, [r10]			// store button presses
-	str r9, [r8, GPIO_IFC]	// clear interrupt flags
+	str r9, [r10]			// store GPIO interrupt flags as button presses
+	str r9, [r8, GPIO_IFC]	// clear GPIO interrupt flags
 	bx lr	
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -411,7 +411,7 @@ gpio_handler:
 timer_handler:
 	push {r0 - r12}
 	ldr r0, =LETIMER_BASE
-	ldr r1, [r0, #LETIMER_IF]	// LETIMER interrupt flag
+	ldr r1, [r0, #LETIMER_IF]	// laod LETIMER interrupt flag
 	str r1, [r0, #LETIMER_IFC]	// clear LETIMER interrupt flag	
 	ldr r4, =timerIRQ		
 	mov r5, #0x100

@@ -144,7 +144,7 @@ _reset:
 	mov r3, #0x00
 	str r1, [r0, #GPIO_EXTIPSELL]	// select PORTC as interrupt pins 
 	str r3, [r0, #GPIO_EXTIFALL]	// dissable falling edge interrupt trigger
-	str r2, [r0, #GPIO_EXTIRISE]	// enable ising edge interrupt trigger
+	str r2, [r0, #GPIO_EXTIRISE]	// enable rising edge interrupt trigger
 	str r2, [r0, #GPIO_IEN]			// enable GPIO interrupts
 	ldr r4, =ISER0
 	ldr r5, =#0x802					// GPIO handler, mov instruction does not work for #0x802
@@ -428,15 +428,15 @@ cmu_base_addr:
 			
 	.section .data
 buttons:
-	.word 0	// thsi is used to store which button was pressed. ensures that button press is only used once
+	.word 0	// This is used to store which button was pressed. ensures that button press is only used once
 leds:
-	.word 0	// this is used as the position of the moving LED
+	.word 0	// This is used as the position of the moving LED
 blinker:
-	.word 0	// this is used as the blinking pattern to alternate
+	.word 0	// This is used as the blinking pattern to alternate
 speed: 
-	.word 0	// this is used to modify the speed (frequency)
+	.word 0	// This is used to modify the speed (frequency)
 state:
-	.word 0	// this is used to select the desired led behavior
+	.word 0	// This is used to select the desired led behavior
 inverter:
 	.word 0	// This is used to invert the output of the moving LED
 timerIRQ:	

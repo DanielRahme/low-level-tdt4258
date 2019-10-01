@@ -37,3 +37,6 @@ build
 
 # Windows stuff
 *.ini
+
+*~
+*.zip

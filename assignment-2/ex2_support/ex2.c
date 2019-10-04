@@ -3,6 +3,7 @@
 
 #include "efm32gg.h"
 
+
 /*
  * TODO calculate the appropriate sample period for the sound wave(s) you 
  * want to generate. The core clock (which the timer clock is derived
@@ -12,7 +13,7 @@
 /*
  * The period between sound samples, in clock cycles 
  */
-#define   SAMPLE_PERIOD   0
+#define   SAMPLE_PERIOD   417
 
 /*
  * Declaration of peripheral setup functions 
@@ -42,8 +43,16 @@ int main(void)
 	 * TODO for higher energy efficiency, sleep while waiting for
 	 * interrupts instead of infinite loop for busy-waiting 
 	 */
-	while (1) ;
-
+	unsigned int data = 0; 
+	while (1){ ;
+	data > 0xff ? data = 0 : 0;
+	if(*TIMER1_CNT == 1){
+	*DAC0_CH0DATA = data;
+	*DAC0_CH1DATA = data;	
+	data += 10;
+	}
+	
+	}
 	return 0;
 }
 

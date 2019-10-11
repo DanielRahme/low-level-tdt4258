@@ -56,8 +56,12 @@
 #define CMU2_HFPERCLKEN0_PRS    (1 << 15)
 #define CMU2_HFPERCLKEN0_GPIO   (1 << 13)
 #define CMU2_HFPERCLKEN0_TIMER1 (1 << 6)
+#define CMU_HFCORECLKEN0_DMA    (1 << 0) 
+#define GPIO_PA_CTRL_DRIVE          2
+#define GPIO_PA_MODEH_OUT       0x55555555
+#define GPIO_PA_DOUT_LOW        0x0700
+#define GPIO_PC_MODEL_PUSH      0x33333333
 
-#define CMU_HFCORECLKEN0_DMA (1 << 0)
 
 // TIMER1
 

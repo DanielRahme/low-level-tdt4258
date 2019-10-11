@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-
+#include <FSM.h>
 #include "efm32gg.h"
 
 /*
@@ -12,6 +12,7 @@
 /*
  * The period between sound samples, in clock cycles 
  */
+
 #define   SAMPLE_PERIOD   0
 
 /*
@@ -20,6 +21,7 @@
 void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
+
 
 /*
  * Your code will start executing here 
@@ -30,20 +32,21 @@ int main(void)
 	 * Call the peripheral setup functions 
 	 */
 	setupGPIO();
-	setupDAC();
-	setupTimer(SAMPLE_PERIOD);
+	//setupDAC();
+	//setupTimer(SAMPLE_PERIOD);
 
 	/*
 	 * Enable interrupt handling 
 	 */
-	setupNVIC();
+	//setupNVIC();
 
 	/*
 	 * TODO for higher energy efficiency, sleep while waiting for
 	 * interrupts instead of infinite loop for busy-waiting 
 	 */
-	while (1) ;
-
+	while (1) {
+		buttonHandler(readButtons());
+	} 
 	return 0;
 }
 

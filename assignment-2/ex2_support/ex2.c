@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include <FSM.h>
 #include "efm32gg.h"
 
 /*
@@ -45,7 +44,7 @@ int main(void)
 	 * interrupts instead of infinite loop for busy-waiting 
 	 */
 	while (1) {
-		buttonHandler(readButtons());
+		updateLeds(readButtons());
 	} 
 	return 0;
 }

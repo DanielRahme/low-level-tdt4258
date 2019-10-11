@@ -44,7 +44,7 @@ int main(void)
 	 * interrupts instead of infinite loop for busy-waiting 
 	 */
 	while (1) {
-		buttonHandler(readButtons());
+		updateLeds(readButtons());
 	} 
 	return 0;
 }

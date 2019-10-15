@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+#include <stdint.h>
+#include <stdbool.h>
+#include "efm32gg.h"
+
+>>>>>>> master
 /*
  * TODO calculate the appropriate sample period for the sound wave(s) you 
  * want to generate. The core clock (which the timer clock is derived
@@ -8,12 +15,16 @@
  * The period between sound samples, in clock cycles 
  */
 
+<<<<<<< HEAD
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "efm32gg.h"
 #include "melodies.h"
 #include "buttons.h"
+=======
+#define   SAMPLE_PERIOD   0
+>>>>>>> master
 
 /*
  * Declaration of peripheral setup functions 
@@ -27,6 +38,7 @@ void setupGPIO();
 //void updateLeds(uint16_t button);
 //uint16_t readButtons(void);
 
+
 /*
  * Your code will start executing here 
  */
@@ -39,6 +51,7 @@ enum tempos {
 
 int main(void)
 {
+<<<<<<< HEAD
     setupGPIO();
     setupDAC();
     setupTimer(317);
@@ -57,6 +70,28 @@ int main(void)
         playMelody(&desiredMelody, &amplitude, tempo);
     }
     return 0;
+=======
+	/*
+	 * Call the peripheral setup functions 
+	 */
+	setupGPIO();
+	//setupDAC();
+	//setupTimer(SAMPLE_PERIOD);
+
+	/*
+	 * Enable interrupt handling 
+	 */
+	//setupNVIC();
+
+	/*
+	 * TODO for higher energy efficiency, sleep while waiting for
+	 * interrupts instead of infinite loop for busy-waiting 
+	 */
+	while (1) {
+		updateLeds(readButtons());
+	} 
+	return 0;
+>>>>>>> master
 }
 
 void setupNVIC()

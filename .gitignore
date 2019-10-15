@@ -10,6 +10,7 @@ build
 *.o
 *.obj
 *.bin
+*.elf
 
 # Precompiled Headers
 *.gch
@@ -27,8 +28,6 @@ build
 # Compiled Static libraries
 *.lai
 *.la
-*.a
-*.lib
 
 # Executables
 *.exe

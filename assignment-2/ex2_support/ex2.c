@@ -13,48 +13,68 @@
 /*
  * The period between sound samples, in clock cycles 
  */
-#define   SAMPLE_PERIOD   417
 
+#define   SAMPLE_PERIOD   317
+#define MAX_VOLUME 200
+volatile bool playOneSample = false;
+
+void __attribute__ ((interrupt)) TIMER1_IRQHandler()
+{
+	playOneSample = true;
+	*TIMER1_IFC|=1;
+}
 /*
  * Declaration of peripheral setup functions 
  */
+
 void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
+void setupGPIO();
 
 /*
  * Your code will start executing here 
  */
+
+
+#include "melodies.h"
+
+bool timerFlag = 0;
+
+void pollTimer(){
+	if (*TIMER1_CNT >= SAMPLE_PERIOD >> 1){
+		timerFlag = true;
+	}
+	else{
+		if (timerFlag){
+			playOneSample = true;
+			timerFlag = 0;
+		}
+	}
+}
+
+
 int main(void)
 {
-	/*
-	 * Call the peripheral setup functions 
-	 */
 	setupGPIO();
 	setupDAC();
 	setupTimer(SAMPLE_PERIOD);
-
-	/*
-	 * Enable interrupt handling 
-	 */
 	setupNVIC();
 
-	/*
-	 * TODO for higher energy efficiency, sleep while waiting for
-	 * interrupts instead of infinite loop for busy-waiting 
-	 */
-	unsigned int data = 0; 
-	while (1){ ;
-	data > 0xff ? data = 0 : 0;
-	if(*TIMER1_CNT == 1){
-	*DAC0_CH0DATA = data;
-	*DAC0_CH1DATA = data;	
-	data += 10;
-	}
+	tempo = 88.2e3;
+	amplitude = MAX_VOLUME;
 	
+	while (1){ 
+		pollTimer();
+		if(playOneSample){
+			selectMelody();
+			playNote();
+			playOneSample = false;
+		}
 	}
 	return 0;
 }
+
 
 void setupNVIC()
 {

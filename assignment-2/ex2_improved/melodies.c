@@ -47,23 +47,6 @@ const note_t happyBDay[] = {
     { eigth, nF, 4 },
 };
 
-volatile bool playOneSample = false;
-
-bool pollTimer()
-{
-    static bool timerFlag = 0;
-    bool playOneSample = false;
-    if (*TIMER1_CNT >= SAMPLE_PERIOD >> 1) {
-        timerFlag = true;
-    }
-    else {
-        if (timerFlag) {
-            playOneSample = true;
-            timerFlag = 0;
-        }
-    }
-    return playOneSample;
-}
 
 note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter)
 {
@@ -125,12 +108,13 @@ void playNote(note_t currentNote, uint16_t* amplitude, uint32_t tempo, uint16_t*
 
 void playMelody(uint8_t* desiredMelody, uint16_t* amplitude, uint32_t tempo)
 {
+    extern volatile bool playOneSample;
     static uint16_t noteCounter = 0;
     note_t currentNote;
-    if (pollTimer()) { //if(playOneSample){
+    if(playOneSample){
         currentNote = selectMelody(desiredMelody, &noteCounter);
         playNote(currentNote, amplitude, tempo, &noteCounter);
-        //playOneSample = false;  //needed for interrupt implementation
+        playOneSample = false;  //needed for interrupt implementation
         //visualizer(currentNote);
     }
 }

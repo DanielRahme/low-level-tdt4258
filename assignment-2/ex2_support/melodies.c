@@ -19,8 +19,33 @@ const note_t fanfare[] = {
 	{sixteenth, nG, 4},
 	{eigth, 	nE, 5}
 };
-
-
+const note_t happyBDay[] = {
+    {sixteenth, nC, 4},
+	{sixteenth, nC, 4},
+	{eigth, 	nD, 4},
+	{eigth, 	nC, 4},
+	{quarter, 	nF, 4},
+	{eigth, 	nE, 4},
+	{eigth, 	nC, 4},
+	{eigth, 	nC, 4},
+	{eigth, 	nD, 4},
+	{eigth, 	nC, 4},
+	{quarter, 	nG, 4},
+	{eigth, 	nF, 4},
+	{eigth, 	nC, 4},
+	{eigth, 	nC, 4},
+	{eigth, 	nC, 5},
+	{eigth, 	nA, 4},
+	{eigth, 	nF, 4},
+	{eigth, 	nE, 4},
+	{eigth, 	nD, 4},
+	{eigth, 	nB, 4},
+	{eigth, 	nB, 4},
+	{quarter, 	nA, 4},
+	{eigth, 	nF, 4},
+	{eigth, 	nG, 4},
+	{eigth, 	nF, 4},
+};
 
 volatile bool playOneSample = false;
 
@@ -41,10 +66,10 @@ bool pollTimer(){
 
 
 note_t selectMelody(uint16_t *noteCounter){
-    if (*noteCounter > (sizeof(fanfare)/sizeof(fanfare[0]))){
+    if (*noteCounter >= (sizeof(happyBDay)/sizeof(happyBDay[0]))){
 		*noteCounter = 0;
 	}
-	return fanfare[*noteCounter];
+	return happyBDay[*noteCounter];
 }
 
 

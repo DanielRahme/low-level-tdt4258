@@ -13,6 +13,7 @@
 
 #include "efm32gg.h"
 #include "melodies.h"
+#include "buttons.h"
 
 
 /*
@@ -23,6 +24,9 @@ void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
 void setupGPIO();
+
+//void updateLeds(uint16_t button);
+//uint16_t readButtons(void);
 
 /*
  * Your code will start executing here 
@@ -41,10 +45,11 @@ int main(void)
 	setupTimer(317);
 	setupNVIC();
 
-	uint32_t tempo = NORMAL_TEMPO;
+	uint32_t tempo = FAST_TEMPO;
 	uint16_t amplitude = MAX_VOLUME;
 	
 	while (1){ 
+	updateLeds(readButtons());
 	playMelody(&amplitude,tempo);	
 	}
 	return 0;

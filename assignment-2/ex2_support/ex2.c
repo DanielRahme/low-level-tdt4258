@@ -15,7 +15,6 @@
 #include "melodies.h"
 #include "buttons.h"
 
-
 /*
  * Declaration of peripheral setup functions 
  */
@@ -33,38 +32,36 @@ void setupGPIO();
  */
 
 enum tempos {
-	FAST_TEMPO = 44100,
-	NORMAL_TEMPO = 88200,
-	SLOW_TEMPO = 176400
+    FAST_TEMPO = 44100,
+    NORMAL_TEMPO = 88200,
+    SLOW_TEMPO = 176400
 };
 
 int main(void)
 {
-	setupGPIO();
-	setupDAC();
-	setupTimer(317);
-	setupNVIC();
+    setupGPIO();
+    setupDAC();
+    setupTimer(317);
+    setupNVIC();
 
-	uint32_t tempo = FAST_TEMPO;
-	uint16_t amplitude = MAX_VOLUME;
-	uint8_t desiredMelody = 0;
+    uint32_t tempo = FAST_TEMPO;
+    uint16_t amplitude = MAX_VOLUME;
+    uint8_t desiredMelody = 0;
 
-	while (1){ 
-		if (readButtons() > 0) {
-			updateLeds(readButtons());
-			desiredMelody = readButtons();
-		}
-	
-		playMelody(&desiredMelody, &amplitude,tempo);	
-	}
-	return 0;
+    while (1) {
+        if (readButtons() > 0) {
+            updateLeds(readButtons());
+            desiredMelody = readButtons();
+        }
+
+        playMelody(&desiredMelody, &amplitude, tempo);
+    }
+    return 0;
 }
-
-
 
 void setupNVIC()
 {
-	/*
+    /*
 	 * TODO use the NVIC ISERx registers to enable handling of
 	 * interrupt(s) remember two things are necessary for interrupt
 	 * handling: - the peripheral must generate an interrupt signal - the

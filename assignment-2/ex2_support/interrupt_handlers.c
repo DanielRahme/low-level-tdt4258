@@ -3,22 +3,21 @@
 
 #include "efm32gg.h"
 
-
 /*
  * TIMER1 interrupt handler 
  */
-void __attribute__ ((interrupt)) TIMER1_IRQHandler()
+void __attribute__((interrupt)) TIMER1_IRQHandler()
 {
-	//playOneSample = true;
-	*TIMER1_IFC|=1;
+    //playOneSample = true;
+    *TIMER1_IFC |= 1;
 }
 
 /*
  * GPIO even pin interrupt handler 
  */
-void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
+void __attribute__((interrupt)) GPIO_EVEN_IRQHandler()
 {
-	/*
+    /*
 	 * TODO handle button pressed event, remember to clear pending
 	 * interrupt 
 	 */
@@ -27,9 +26,9 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 /*
  * GPIO odd pin interrupt handler 
  */
-void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
+void __attribute__((interrupt)) GPIO_ODD_IRQHandler()
 {
-	/*
+    /*
 	 * TODO handle button pressed event, remember to clear pending
 	 * interrupt 
 	 */

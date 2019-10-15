@@ -7,7 +7,11 @@
 /*
  * TIMER1 interrupt handler 
  */
-
+void __attribute__ ((interrupt)) TIMER1_IRQHandler()
+{
+	//playOneSample = true;
+	*TIMER1_IFC|=1;
+}
 
 /*
  * GPIO even pin interrupt handler 

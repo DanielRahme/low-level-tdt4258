@@ -1,9 +1,3 @@
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "efm32gg.h"
-
-
 /*
  * TODO calculate the appropriate sample period for the sound wave(s) you 
  * want to generate. The core clock (which the timer clock is derived
@@ -14,15 +8,13 @@
  * The period between sound samples, in clock cycles 
  */
 
-#define   SAMPLE_PERIOD   317
-#define MAX_VOLUME 150
-volatile bool playOneSample = false;
+#include <stdint.h>
+#include <stdbool.h>
 
-void __attribute__ ((interrupt)) TIMER1_IRQHandler()
-{
-	playOneSample = true;
-	*TIMER1_IFC|=1;
-}
+#include "efm32gg.h"
+#include "melodies.h"
+
+
 /*
  * Declaration of peripheral setup functions 
  */
@@ -36,21 +28,24 @@ void setupGPIO();
  * Your code will start executing here 
  */
 
-
-#include "melodies.h"
+enum tempos {
+	FAST_TEMPO = 44100,
+	NORMAL_TEMPO = 88200,
+	SLOW_TEMPO = 176400
+};
 
 int main(void)
 {
 	setupGPIO();
 	setupDAC();
-	setupTimer(SAMPLE_PERIOD);
+	setupTimer(317);
 	setupNVIC();
 
-	uint32_t tempo = (88200)>>1;
+	uint32_t tempo = NORMAL_TEMPO;
 	uint16_t amplitude = MAX_VOLUME;
 	
 	while (1){ 
-	playMelody(amplitude,tempo);	
+	playMelody(&amplitude,tempo);	
 	}
 	return 0;
 }

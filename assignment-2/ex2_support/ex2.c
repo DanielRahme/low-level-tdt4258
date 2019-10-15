@@ -15,7 +15,7 @@
  */
 
 #define   SAMPLE_PERIOD   317
-#define MAX_VOLUME 200
+#define MAX_VOLUME 150
 volatile bool playOneSample = false;
 
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
@@ -39,21 +39,6 @@ void setupGPIO();
 
 #include "melodies.h"
 
-bool timerFlag = 0;
-
-void pollTimer(){
-	if (*TIMER1_CNT >= SAMPLE_PERIOD >> 1){
-		timerFlag = true;
-	}
-	else{
-		if (timerFlag){
-			playOneSample = true;
-			timerFlag = 0;
-		}
-	}
-}
-
-
 int main(void)
 {
 	setupGPIO();
@@ -61,16 +46,11 @@ int main(void)
 	setupTimer(SAMPLE_PERIOD);
 	setupNVIC();
 
-	tempo = 88.2e3;
-	amplitude = MAX_VOLUME;
+	uint32_t tempo = (88200)>>1;
+	uint16_t amplitude = MAX_VOLUME;
 	
 	while (1){ 
-		pollTimer();
-		if(playOneSample){
-			selectMelody();
-			playNote();
-			playOneSample = false;
-		}
+	playMelody(amplitude,tempo);	
 	}
 	return 0;
 }

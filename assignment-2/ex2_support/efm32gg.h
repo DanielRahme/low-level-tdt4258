@@ -63,6 +63,12 @@
 #define GPIO_PC_MODEL_PUSH      0x33333333
 
 
+#define GPIO_PA_CTRL_DRIVE          2
+#define GPIO_PA_MODEH_OUT       0x55555555
+#define GPIO_PA_DOUT_LOW        0x0700
+#define GPIO_PC_MODEL_PUSH      0x33333333
+#define GPIO_IFC_CLEAR           0xff
+
 // TIMER1
 
 #define TIMER1_BASE 0x40010400

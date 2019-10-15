@@ -47,13 +47,19 @@ int main(void)
 
 	uint32_t tempo = FAST_TEMPO;
 	uint16_t amplitude = MAX_VOLUME;
-	
+	uint8_t desiredMelody = 0;
+
 	while (1){ 
-	updateLeds(readButtons());
-	playMelody(&amplitude,tempo);	
+		if (readButtons() > 0) {
+			updateLeds(readButtons());
+			desiredMelody = readButtons();
+		}
+	
+		playMelody(&desiredMelody, &amplitude,tempo);	
 	}
 	return 0;
 }
+
 
 
 void setupNVIC()

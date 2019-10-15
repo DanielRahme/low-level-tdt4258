@@ -65,11 +65,29 @@ bool pollTimer(){
 }
 
 
-note_t selectMelody(uint16_t *noteCounter){
-    if (*noteCounter >= (sizeof(happyBDay)/sizeof(happyBDay[0]))){
-		*noteCounter = 0;
-	}
-	return happyBDay[*noteCounter];
+note_t selectMelody(uint8_t *desiredMelody, uint16_t *noteCounter){
+
+    if (*desiredMelody == 0) {
+        *noteCounter = 0;
+	    return (note_t){full, nRest, 0};
+    }
+    // Play happy birthday
+    else if (*desiredMelody == 1) {
+        if (*noteCounter >= (sizeof(happyBDay)/sizeof(happyBDay[0]))){
+		    *noteCounter = 0;
+            *desiredMelody = 0;
+	    }
+	    return happyBDay[*noteCounter];
+    }
+    // Play fanfare
+    else if (*desiredMelody == 2) {
+        if (*noteCounter >= (sizeof(fanfare)/sizeof(fanfare[0]))){
+		    *noteCounter = 0;
+            *desiredMelody = 0;
+	    }
+	    return fanfare[*noteCounter];
+    }
+ return (note_t){full, nRest, 0};
 }
 
 
@@ -105,11 +123,11 @@ void playNote(note_t currentNote, uint16_t *amplitude, uint32_t tempo,uint16_t *
 }
 
 
-void playMelody(uint16_t *amplitude, uint32_t tempo){
+void playMelody(uint8_t *desiredMelody, uint16_t *amplitude, uint32_t tempo){
 		static uint16_t noteCounter = 0;
 		note_t currentNote;
 		if(pollTimer()){ //if(playOneSample){ 
-			currentNote = selectMelody(&noteCounter);
+			currentNote = selectMelody(desiredMelody, &noteCounter);
 			playNote(currentNote, amplitude, tempo, &noteCounter);
 			//playOneSample = false;  //needed for interrupt implementation
 			//visualizer(currentNote);

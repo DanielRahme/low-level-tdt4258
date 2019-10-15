@@ -34,10 +34,10 @@ typedef struct {
 
 // Function declarations
 bool pollTimer();
-note_t selectMelody(uint16_t *noteCounter);
+note_t selectMelody(uint8_t *desiredMelody, uint16_t *noteCounter);
 uint16_t setNoteFreq(note_t currentNote, uint16_t *amplitude);
 void playNote(note_t currentNote, uint16_t *amplitude, uint32_t tempo,uint16_t *noteCounter);
-void playMelody(uint16_t *amplitude, uint32_t tempo);
+void playMelody(uint8_t *desiredMelody, uint16_t *amplitude, uint32_t tempo);
 
 
 #endif

@@ -5,7 +5,7 @@
 
 unsigned int readButtons(void) 				// Reads the bUTTON and returns the 
 {
-	return (~*GPIO_PC_DIN);				//Due to pull up the bits are inverted
+	return (~(*GPIO_PC_DIN) & 0xff);				//Due to pull up the bits are inverted
 }
 
 void updateLeds(unsigned int button)

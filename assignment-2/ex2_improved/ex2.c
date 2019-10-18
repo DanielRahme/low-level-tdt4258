@@ -24,8 +24,8 @@ int main(void)
     setupGPIO();
     setupDAC();
     setupTimer(TIMER_PERIOD);
-    //*EMU_CTRL |= (1<<1);
-    //*SCR = 2; // Set Deep sleep bit
+    *EMU_CTRL |= (1<<1);
+    *SCR = 2; // Set Deep sleep bit
     
     
     while (1) {

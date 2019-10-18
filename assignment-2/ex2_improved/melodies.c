@@ -142,8 +142,14 @@ note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter)
             *desiredMelody = 0;
         }
         return boink[*noteCounter];
-    }
 
+    } else if (*desiredMelody == BUTTON7) {
+        if (*noteCounter >= (sizeof(shittyTones) / sizeof(shittyTones[0]))) {
+            *noteCounter = 0;
+            *desiredMelody = BUTTON7;
+        }
+        return shittyTones[*noteCounter];
+    }
     return (note_t){ full, nRest, 0 };
 }
 

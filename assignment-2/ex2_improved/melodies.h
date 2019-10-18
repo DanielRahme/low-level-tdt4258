@@ -1,14 +1,14 @@
 
 #ifndef MELODIES_H
 #define MELODIES_H
-// note legth division by 2^n
+// note length division by 2^n
 #define full 0
 #define half 1
 #define quarter 2
 #define eigth 3
 #define sixteenth 4
 
-// half period lengths
+// half period lengths, frequencies are seperated by 2^(1/12)
 #define nC 1349
 #define nCs 1273
 #define nD 1201
@@ -25,14 +25,20 @@
 
 #define SAMPLE_PERIOD 317
 #define MAX_VOLUME 150
+
+enum tempos {
+    FAST_TEMPO = 44100,
+    NORMAL_TEMPO = 88200,
+    SLOW_TEMPO = 176400
+};
+
 typedef struct {
-    uint8_t value;
-    uint16_t noteType;
-    uint8_t octave;
+    uint8_t value;          // length of note
+    uint16_t noteType;      // f0, e.g. C, G#, B, E
+    uint8_t octave;         // how many times the frequency is doubled, f0*2^octave
 } note_t;
 
 // Function declarations
-bool pollTimer();
 note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter);
 uint16_t setNoteFreq(note_t currentNote, uint16_t* amplitude);
 void playNote(note_t currentNote, uint16_t* amplitude, uint32_t tempo, uint16_t* noteCounter);

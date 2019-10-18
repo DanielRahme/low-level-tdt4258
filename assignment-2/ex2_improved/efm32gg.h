@@ -42,7 +42,7 @@
 #define GPIO_EXTIFALL  ((volatile uint32_t*)(GPIO_PA_BASE + 0x10c))
 #define GPIO_IEN       ((volatile uint32_t*)(GPIO_PA_BASE + 0x110))
 #define GPIO_IFC       ((volatile uint32_t*)(GPIO_PA_BASE + 0x11c))
-
+#define GPIO_IF        ((volatile uint32_t*)(GPIO_PA_BASE + 0x114))
 // CMU
 
 #define CMU_BASE2 0x400c8000
@@ -51,6 +51,8 @@
 #define CMU_HFCORECLKEN0 ((volatile uint32_t*)(CMU_BASE2 + 0x040))
 #define CMU_HFPERCLKEN0  ((volatile uint32_t*)(CMU_BASE2 + 0x044))
 #define CMU_CMD          ((volatile uint32_t*)(CMU_BASE2 + 0x024))
+#define CMU_LFCLKSEL     ((volatile uint32_t*)(CMU_BASE2 + 0x028))
+#define CMU_LFACLKEN0     ((volatile uint32_t*)(CMU_BASE2 + 0x058))
 
 #define CMU2_HFPERCLKEN0_DAC0   (1 << 17)
 #define CMU2_HFPERCLKEN0_PRS    (1 << 15)
@@ -68,16 +70,29 @@
 #define GPIO_PA_DOUT_LOW        0x0700
 #define GPIO_PC_MODEL_PUSH      0x33333333
 #define GPIO_IFC_CLEAR           0xff
+#define GPIO_PIN_EVEN (1 << 1)
+#define GPIO_PIN_ODD (1 << 11)
 
 // TIMER1
 
 #define TIMER1_BASE 0x40010400
 
+#define TIMER1_CRTL ((volatile uint32_t*)(TIMER1_BASE))
 #define TIMER1_CMD ((volatile uint32_t*)(TIMER1_BASE + 0x04))
 #define TIMER1_IEN ((volatile uint32_t*)(TIMER1_BASE + 0x0c))
 #define TIMER1_IFC ((volatile uint32_t*)(TIMER1_BASE + 0x18))
 #define TIMER1_TOP ((volatile uint32_t*)(TIMER1_BASE + 0x1c))
 #define TIMER1_CNT ((volatile uint32_t*)(TIMER1_BASE + 0x24))
+
+//LETIMER
+#define LETIMER_BASE 0x40082000 
+
+#define LETIMER_CTRL ((volatile uint32_t*)(TIMER1_BASE + 0x00))
+#define LETIMER_CMD ((volatile uint32_t*)(TIMER1_BASE + 0x04))
+#define LETIMER_IEN ((volatile uint32_t*)(TIMER1_BASE + 0x2c))
+#define LETIMER_IFC ((volatile uint32_t*)(TIMER1_BASE + 0x28))
+#define LETIMER_COMP ((volatile uint32_t*)(TIMER1_BASE + 0x14))
+#define LETIMER_CNT ((volatile uint32_t*)(TIMER1_BASE + 0x24))
 
 // NVIC
 

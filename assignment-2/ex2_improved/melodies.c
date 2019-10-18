@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "melodies.h"
+#include "buttons.h"
 #include "efm32gg.h"
 
 const note_t fanfare[] = {
@@ -19,6 +20,7 @@ const note_t fanfare[] = {
     { sixteenth, nG, 4 },
     { eigth, nE, 5 }
 };
+
 const note_t happyBDay[] = {
     { sixteenth, nC, 4 },
     { sixteenth, nC, 4 },
@@ -47,6 +49,47 @@ const note_t happyBDay[] = {
     { eigth, nF, 4 },
 };
 
+const note_t shittyTones[] = {
+    { sixteenth, nD, 4 },
+    { sixteenth, nC, 2 },
+    { eigth, nA, 1 },
+    { eigth, nC, 4 },
+    { quarter, nF, 2 },
+    { sixteenth, nAs, 7 },
+    { sixteenth, nC, 2 },
+    { eigth, nC, 4 },
+    { sixteenth, nD, 4 },
+    { eigth, nCs, 4 },
+    { sixteenth, nG, 4 },
+    { eigth, nFs, 4 },
+    { sixteenth, nC, 4 },
+    { eigth, nCs, 7 },
+    { eigth, nC, 7 },
+    { sixteenth, nDs, 7 },
+    { sixteenth, nD, 7 },
+    { eigth, nE, 2 },
+    { sixteenth, nDs, 2 },
+    { sixteenth, nB, 2 },
+    { eigth, nB, 2 },
+    { sixteenth, nA, 7 },
+    { sixteenth, nDs, 7 },
+    { quarter, nG, 1 },
+    { eigth, nF, 1 },
+};
+
+const note_t soundFx[] = {
+    { eigth, nDs, 7 },
+    { sixteenth, nE, 1 },
+    { sixteenth, nA, 3 },
+    { eigth, nE, 3 },
+    { quarter, nB, 5 },
+};
+
+const note_t boink[] = {
+    { sixteenth, nC, 6 },
+    { quarter, nA, 6 }
+};
+
 
 note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter)
 {
@@ -55,22 +98,48 @@ note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter)
         *noteCounter = 0;
         return (note_t){ full, nRest, 0 };
     }
+
     // Play happy birthday
-    else if (*desiredMelody == 1) {
+    else if (*desiredMelody == BUTTON0) {
         if (*noteCounter >= (sizeof(happyBDay) / sizeof(happyBDay[0]))) {
             *noteCounter = 0;
             *desiredMelody = 0;
         }
         return happyBDay[*noteCounter];
-    }
+
     // Play fanfare
-    else if (*desiredMelody == 2) {
+    } else if (*desiredMelody == BUTTON1) {
         if (*noteCounter >= (sizeof(fanfare) / sizeof(fanfare[0]))) {
             *noteCounter = 0;
             *desiredMelody = 0;
         }
         return fanfare[*noteCounter];
+
+    // Play shitty notes
+    } else if (*desiredMelody == BUTTON2) {
+        if (*noteCounter >= (sizeof(shittyTones) / sizeof(shittyTones[0]))) {
+            *noteCounter = 0;
+            *desiredMelody = 0;
+        }
+        return shittyTones[*noteCounter];
+
+    // Play sound effect
+    } else if (*desiredMelody == BUTTON3) {
+        if (*noteCounter >= (sizeof(soundFx) / sizeof(soundFx[0]))) {
+            *noteCounter = 0;
+            *desiredMelody = 0;
+        }
+        return soundFx[*noteCounter];
+
+    // Play boink
+    } else if (*desiredMelody == BUTTON4) {
+        if (*noteCounter >= (sizeof(boink) / sizeof(boink[0]))) {
+            *noteCounter = 0;
+            *desiredMelody = 0;
+        }
+        return boink[*noteCounter];
     }
+
     return (note_t){ full, nRest, 0 };
 }
 
@@ -115,21 +184,5 @@ void playMelody(uint8_t* desiredMelody, uint16_t* amplitude, uint32_t tempo)
         currentNote = selectMelody(desiredMelody, &noteCounter);
         playNote(currentNote, amplitude, tempo, &noteCounter);
         playOneSample = false;  //needed for interrupt implementation
-        //visualizer(currentNote);
     }
 }
-
-/*
-void visualizer(note_t currentNote){
-	uint8_t shift = 0;
-	shift =  (currentNote.noteType == nG) ? 1 : 0;
-	shift =  (currentNote.noteType == nA) ? 2 : 0;
-	shift =  (currentNote.noteType == nB) ? 3 : 0;
-	shift =  (currentNote.noteType == nC) ? 4 : 0;
-	shift =  (currentNote.noteType == nD) ? 5 : 0;
-	shift =  (currentNote.noteType == nE) ? 6 : 0;
-	shift =  (currentNote.noteType == nF) ? 7 : 0;
-
-	*GPIO_PA_DOUT = (0xffff>>shift);		
-	}
-*/

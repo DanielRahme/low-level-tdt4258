@@ -32,7 +32,6 @@ typedef struct {
 } note_t;
 
 // Function declarations
-bool pollTimer();
 note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter);
 uint16_t setNoteFreq(note_t currentNote, uint16_t* amplitude);
 void playNote(note_t currentNote, uint16_t* amplitude, uint32_t tempo, uint16_t* noteCounter);

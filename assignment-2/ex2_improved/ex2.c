@@ -21,29 +21,38 @@ enum tempos {
     NORMAL_TEMPO = 88200,
     SLOW_TEMPO = 176400
 };
+void initiate(void)
+{
+
+}
 
 int main(void)
 {
     setupGPIO();
     setupDAC();
     setupTimer(317);
-    *EMU_CTRL |= (1<<1);
+    //*EMU_CTRL |= (1<<1);
     //*SCR = 4; // Set Deep sleep bit
     
+    /*
     uint32_t tempo = FAST_TEMPO;
     uint16_t amplitude = MAX_VOLUME;
     uint8_t desiredMelody = 0;
+    */
     
+    // The butten is updated by the GPIO pin isr
     extern volatile uint8_t button; 
-
     while (1) {
-        __asm("wfi");
-        if (button > 0) {
+        //__asm("wfi");
+
+        // Moved to timer interrupt isr
+       /* if (button > 0) {
             updateLeds(button);
             desiredMelody = button;
-            button = 0;
+            button = 0; 
         }
         playMelody(&desiredMelody, &amplitude, tempo);
+        */
     }
     return 0;
 }

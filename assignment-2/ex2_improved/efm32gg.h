@@ -70,6 +70,8 @@
 #define GPIO_PA_DOUT_LOW        0x0700
 #define GPIO_PC_MODEL_PUSH      0x33333333
 #define GPIO_IFC_CLEAR           0xff
+#define GPIO_PIN_EVEN (1 << 1)
+#define GPIO_PIN_ODD (1 << 11)
 
 // TIMER1
 

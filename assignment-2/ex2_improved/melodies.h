@@ -25,6 +25,13 @@
 
 #define SAMPLE_PERIOD 317
 #define MAX_VOLUME 150
+
+enum tempos {
+    FAST_TEMPO = 44100,
+    NORMAL_TEMPO = 88200,
+    SLOW_TEMPO = 176400
+};
+
 typedef struct {
     uint8_t value;
     uint16_t noteType;

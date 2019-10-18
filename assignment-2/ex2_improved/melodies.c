@@ -91,11 +91,15 @@ const note_t boink[] = {
 };
 
 
+/**
+ * @brief Select which melody to play depending on 
+ * selected melody
+ */ 
 note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter)
 {
-
     if (*desiredMelody == 0) {
         *noteCounter = 0;
+        *GPIO_PA_DOUT = 0xffff;
         return (note_t){ full, nRest, 0 };
     }
 
@@ -108,7 +112,7 @@ note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter)
         return happyBDay[*noteCounter];
 
     // Play fanfare
-    } else if (*desiredMelody == BUTTON1) {
+    } else if (*desiredMelody == BUTTON3) {
         if (*noteCounter >= (sizeof(fanfare) / sizeof(fanfare[0]))) {
             *noteCounter = 0;
             *desiredMelody = 0;
@@ -124,7 +128,7 @@ note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter)
         return shittyTones[*noteCounter];
 
     // Play sound effect
-    } else if (*desiredMelody == BUTTON3) {
+    } else if (*desiredMelody == BUTTON1) {
         if (*noteCounter >= (sizeof(soundFx) / sizeof(soundFx[0]))) {
             *noteCounter = 0;
             *desiredMelody = 0;

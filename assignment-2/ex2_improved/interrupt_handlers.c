@@ -4,27 +4,36 @@
 #include "efm32gg.h"
 #include "buttons.h"
 
-volatile uint8_t button = 0;
+static volatile uint8_t button = 0;
 volatile bool playOneSample = false;
-
+uint16_t amplitude = MAX_VOLUME;
+uint32_t tempo = FAST_TEMPO;
 /*
  * TIMER1 interrupt handler 
  */
 void __attribute__((interrupt)) TIMER1_IRQHandler()
 {
     playOneSample = true;
-	uint8_t desiredMelody = button;
-	uint16_t amplitude = MAX_VOLUME;
-    uint32_t tempo = 44100;
+	static uint8_t desiredMelody;
+	if(button > 0){
+		desiredMelody = button;
+		button = 0;
+	}
 	playMelody(&desiredMelody, &amplitude, tempo);
 	*TIMER1_IFC |= 1;
-	
 }
+
 
 void __attribute__((interrupt)) LETIMER0_IRQHandler()
 {
     playOneSample = true;
-    *LETIMER_IFC |= (1<<2);
+	static uint8_t desiredMelody;
+	if(button > 0){
+		desiredMelody = button;
+		button = 0;
+	}
+	playMelody(&desiredMelody, &amplitude, tempo);
+	*LETIMER_IFC |= 1;
 }
 
 /*

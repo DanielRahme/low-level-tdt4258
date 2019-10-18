@@ -16,43 +16,21 @@ void setupNVIC();
 void setupGPIO();
 
 
-enum tempos {
-    FAST_TEMPO = 44100,
-    NORMAL_TEMPO = 88200,
-    SLOW_TEMPO = 176400
-};
-void initiate(void)
-{
-
-}
 
 int main(void)
 {
+    const unsigned int TIMER_PERIOD = 317;
+
     setupGPIO();
     setupDAC();
-    setupTimer(317);
+    setupTimer(TIMER_PERIOD);
     //*EMU_CTRL |= (1<<1);
-    //*SCR = 4; // Set Deep sleep bit
+    //*SCR = 2; // Set Deep sleep bit
     
-    /*
-    uint32_t tempo = FAST_TEMPO;
-    uint16_t amplitude = MAX_VOLUME;
-    uint8_t desiredMelody = 0;
-    */
     
-    // The butten is updated by the GPIO pin isr
-    extern volatile uint8_t button; 
     while (1) {
-        //__asm("wfi");
+        __asm("wfi");
 
-        // Moved to timer interrupt isr
-       /* if (button > 0) {
-            updateLeds(button);
-            desiredMelody = button;
-            button = 0; 
-        }
-        playMelody(&desiredMelody, &amplitude, tempo);
-        */
     }
     return 0;
 }

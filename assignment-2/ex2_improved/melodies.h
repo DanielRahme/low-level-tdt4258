@@ -25,6 +25,13 @@
 
 #define SAMPLE_PERIOD 317
 #define MAX_VOLUME 150
+
+enum tempos {
+    FAST_TEMPO = 44100,
+    NORMAL_TEMPO = 88200,
+    SLOW_TEMPO = 176400
+};
+
 typedef struct {
     uint8_t value;          // length of note
     uint16_t noteType;      // f0, e.g. C, G#, B, E
@@ -32,7 +39,6 @@ typedef struct {
 } note_t;
 
 // Function declarations
-bool pollTimer();
 note_t selectMelody(uint8_t* desiredMelody, uint16_t* noteCounter);
 uint16_t setNoteFreq(note_t currentNote, uint16_t* amplitude);
 void playNote(note_t currentNote, uint16_t* amplitude, uint32_t tempo, uint16_t* noteCounter);

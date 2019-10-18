@@ -78,13 +78,13 @@ uint16_t setNoteFreq(note_t currentNote, uint16_t* amplitude)
 {
     static bool onOff = 0;
     static uint16_t periodCounter = 0;
-    if (periodCounter >= currentNote.noteType >> (currentNote.octave)) {
-        onOff = !onOff;
-        periodCounter = 0;
+    if (periodCounter >= currentNote.noteType >> (currentNote.octave)) {  // when one half period is complete
+        onOff = !onOff;                                                   // toggle square wave  ___|||___|||___|||   
+        periodCounter = 0;                                                // reset to begin counting the next half period
         *amplitude = *amplitude > 0 ? *amplitude - 1 : 0; //add some decay to the note to make it a little more natural
     }
-    periodCounter++;
-    return *amplitude * (onOff & 1);
+    periodCounter++;    // count the amount of samples since the start of the half period
+    return *amplitude * (onOff & 1); // return amplified square wave
 }
 
 void playNote(note_t currentNote, uint16_t* amplitude, uint32_t tempo, uint16_t* noteCounter)
@@ -93,12 +93,12 @@ void playNote(note_t currentNote, uint16_t* amplitude, uint32_t tempo, uint16_t*
     static uint32_t noteDuration = 0;
     if (noteDuration < (tempo >> currentNote.value)) {
         if (currentNote.noteType != nRest) {
-            data = setNoteFreq(currentNote, amplitude);
+            data = setNoteFreq(currentNote, amplitude); // creates square wave with desired amplitude and frequency
         }
     }
-    else { // re-initialize note
-        (*noteCounter)++;
-        noteDuration = 0;
+    else { // re-initialize note when note complete
+        (*noteCounter)++;  // move note pointer to the next note
+        noteDuration = 0;  
         *amplitude = MAX_VOLUME;
     }
     noteDuration++;
@@ -114,8 +114,7 @@ void playMelody(uint8_t* desiredMelody, uint16_t* amplitude, uint32_t tempo)
     if(playOneSample){
         currentNote = selectMelody(desiredMelody, &noteCounter);
         playNote(currentNote, amplitude, tempo, &noteCounter);
-        playOneSample = false;  //needed for interrupt implementation
-        //visualizer(currentNote);
+        playOneSample = false;  
     }
 }
 

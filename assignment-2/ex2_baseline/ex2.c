@@ -1,7 +1,3 @@
-#include <stdint.h>
-#include <stdbool.h>
-#include "efm32gg.h"
-
 /*
  * TODO calculate the appropriate sample period for the sound wave(s) you 
  * want to generate. The core clock (which the timer clock is derived
@@ -12,46 +8,61 @@
  * The period between sound samples, in clock cycles 
  */
 
-#define   SAMPLE_PERIOD   0
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "efm32gg.h"
+#include "melodies.h"
+#include "buttons.h"
 
 /*
  * Declaration of peripheral setup functions 
  */
+
 void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
+void setupGPIO();
+
+//void updateLeds(uint16_t button);
+//uint16_t readButtons(void);
 
 
 /*
  * Your code will start executing here 
  */
+
+enum tempos {
+    FAST_TEMPO = 44100,
+    NORMAL_TEMPO = 88200,
+    SLOW_TEMPO = 176400
+};
+
 int main(void)
 {
-	/*
-	 * Call the peripheral setup functions 
-	 */
-	setupGPIO();
-	//setupDAC();
-	//setupTimer(SAMPLE_PERIOD);
+    setupGPIO();
+    setupDAC();
+    setupTimer(317);
+    setupNVIC();
 
-	/*
-	 * Enable interrupt handling 
-	 */
-	//setupNVIC();
+    uint32_t tempo = FAST_TEMPO;
+    uint16_t amplitude = MAX_VOLUME;
+    uint8_t desiredMelody = 0;
 
-	/*
-	 * TODO for higher energy efficiency, sleep while waiting for
-	 * interrupts instead of infinite loop for busy-waiting 
-	 */
-	while (1) {
-		updateLeds(readButtons());
-	} 
-	return 0;
+    while (1) {
+        if (readButtons() > 0) {
+            updateLeds(readButtons());
+            desiredMelody = readButtons();
+        }
+
+        playMelody(&desiredMelody, &amplitude, tempo);
+    }
+    return 0;
 }
 
 void setupNVIC()
 {
-	/*
+    /*
 	 * TODO use the NVIC ISERx registers to enable handling of
 	 * interrupt(s) remember two things are necessary for interrupt
 	 * handling: - the peripheral must generate an interrupt signal - the

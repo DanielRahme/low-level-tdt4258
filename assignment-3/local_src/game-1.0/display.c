@@ -33,13 +33,51 @@ void display_init()
     buf = mmap(NULL, disp_size, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
     assert(buf != MAP_FAILED);
 
+    
+    display_fill_all(BLACK);
 
-    // To be removed (fill whole screen instead)
-    for (int y = 0; y < 100; y++) {
-        for (int x = 0; x < 200; x++) {
-            buf[y*info.xres + x] = BACKGROUND_COLOR;
+    display_draw_rect(0, 10, 20, 100, RED);
+    display_draw_rect(30, 10, 20, 100, WHITE);
+    display_draw_rect(60, 10, 20, 100, BLUE);
+
+
+}
+
+
+void display_fill_all(uint16_t color)
+{
+    for (int i = 0; i < info.xres * info.yres; i++) {
+        buf[i] = color;
+    }
+}
+
+
+void display_draw_rect(int x, int y, int width, int height, int color)
+{
+    for (int row = y; row < y+height; row++) {
+        for (int col = x; col < x+width; col++) {
+            if (row + height > info.yres) break;
+            if (col + width > info.xres) break;
+            buf[row*info.xres + col] = color;
         }
     }
+}
+
+
+
+// WIP
+// WIP
+// WIP
+// WIP
+void display_update(int x, int y, int width, int heigth)
+{
+    struct fb_copyarea rect;
+    rect.dx = 0;
+    rect.dy = 0;
+    rect.width = info.xres;
+    rect.height = info.yres;
+
+    ioctl(fb, FB_DRAW, &rect);
 }
 
 

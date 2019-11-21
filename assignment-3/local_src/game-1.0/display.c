@@ -63,16 +63,30 @@ void display_draw_rect(rect_t rect, int color)
 // WIP
 // WIP
 // WIP
-void display_update(int x, int y, int width, int heigth)
+void display_update(rect_t my_rect)
 {
     struct fb_copyarea rect;
-    rect.dx = 0;
-    rect.dy = 0;
-    rect.width = info.xres;
-    rect.height = info.yres;
+    rect.dx = my_rect.x;
+    rect.dy = my_rect.y;
+    rect.width = my_rect.width;
+    rect.height = my_rect.height;
 
     ioctl(fb, FB_DRAW, &rect);
 }
+
+
+/*
+void display_update_players()
+{
+    // Player 1 update
+    rect_t tmp1 = {0, 0, 32, 240);
+    display_update(tmp1);
+    
+    // Player 1 update
+    rect_t tmp2 = {320-32, 0, 32, 240);
+    display_update(tmp2);
+}
+*/
 
 
 void display_update_all()

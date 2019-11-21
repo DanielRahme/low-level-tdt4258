@@ -17,11 +17,17 @@ int main(int argc, char *argv[])
 {
     display_init();
     display_update_all();
+
     objects_init();
-    display_update_all();
+    update_players_disp();
+
+    for (int i = 0; i < 50; i++) {
+        update_players_pos(PLAYER_1_UP, PLAYER_2_DOWN);
+        update_players_disp();
+    }
+
     display_close();
 
     printf("Hello World, I'm game!\n");
-
     exit(EXIT_SUCCESS);
 }

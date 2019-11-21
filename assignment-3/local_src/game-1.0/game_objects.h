@@ -4,15 +4,6 @@
 
 #include "display.h"
 
-typedef enum {
-    NEUTRAL = 0,
-    UP,
-    DOWN,
-    RIGHT,
-    LEFT
-} dir_t;
-
-
 
 enum player_speed {
     PLAYER_NEUTRAL_SPEED    = 0,
@@ -21,6 +12,7 @@ enum player_speed {
 };
 
 
+// Buttons from gamepad
 typedef enum {
     PLAYER_1_UP,
     PLAYER_1_DOWN,
@@ -37,6 +29,7 @@ typedef struct {
 } velocity_t;
 
 
+// Objects: Player rectangles and ball
 typedef struct {
     rect_t pos;
     velocity_t velocity;
@@ -44,9 +37,13 @@ typedef struct {
 } object_t;
 
 
+// Functions
 void objects_init();
-void update_players_disp();
+
+void redraw_players();
 void update_players_pos(player_btn_t btn_p1, player_btn_t btn_p2);
+
+void update_ball();
 
 
 #endif

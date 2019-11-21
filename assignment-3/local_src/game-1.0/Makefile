@@ -12,7 +12,7 @@ CPPFLAGS +=
 LDFLAGS += -lm
 
 
-OBJS = display.o game_objects.o
+OBJS = display.o game_objects.o collision.o physics.o
 
 all: game
 

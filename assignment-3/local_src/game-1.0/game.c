@@ -10,6 +10,8 @@
 // Libraries
 #include "display.h"
 #include "game_objects.h"
+#include "collision.h"
+//#include "physics.h"
 
 
 
@@ -19,11 +21,15 @@ int main(int argc, char *argv[])
     display_update_all();
 
     objects_init();
-    update_players_disp();
+    redraw_players();
 
-    for (int i = 0; i < 50; i++) {
-        update_players_pos(PLAYER_1_UP, PLAYER_2_DOWN);
-        update_players_disp();
+    for (int i = 0; i < 1000; i++) {
+        update_players_pos(PLAYER_1_DOWN, PLAYER_NEUTRAL);
+        redraw_players();
+        update_ball();
+        update_players_pos(PLAYER_1_UP, PLAYER_NEUTRAL);
+        redraw_players();
+        update_ball();
     }
 
     display_close();

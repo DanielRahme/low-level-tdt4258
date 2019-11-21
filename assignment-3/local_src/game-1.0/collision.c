@@ -17,11 +17,11 @@ bool detect_collision(object_t* object_1,object_t* object_2){
 
     bool y_col = ( obj_1.y_bottom >= obj_2.y_top && obj_1.y_top <= obj_2.y_bottom );
     bool x_col = ( obj_1.x_left <= obj_2.x_right && obj_1.x_left >= obj_2.x_right );
-    return(  y_col & x_col );
+    return(y_col && x_col);
 }
 
 
-bool goal_collision(object_t *ball,int side) {
+bool goal_collision(object_t *ball,int side) { // side = left or right
     object_t goal;
     goal.pos.x = side;
     goal.pos.y = 0;
@@ -31,7 +31,7 @@ bool goal_collision(object_t *ball,int side) {
     return detect_collision(ball, &goal);
 }
 
-bool frame_collision(object_t *ball,int side){
+bool frame_collision(object_t *ball,int side){  // side = top or or bottom
     object_t frame;
     frame.pos.x = 0;
     frame.pos.y = side;
@@ -39,6 +39,10 @@ bool frame_collision(object_t *ball,int side){
     frame.pos.height = 1;
 
     return detect_collision(ball, &frame);    
+}
+
+bool paddle_collision(object_t *ball,object_t* paddle){
+    return detect_collision(ball, paddle);    
 }
 
 

@@ -1,4 +1,4 @@
-
+#include <stdbool.h>
 #include "game_objects.h"
 #include "display.h"
 
@@ -26,4 +26,5 @@ abs_pos get_abs_pos(object_t *game_object);
 bool detect_collision(object_t* object_1,object_t* object_2);
 bool goal_collision(object_t *ball,int side);
 bool frame_collision(object_t *ball,int side);
+bool paddle_collision(object_t *ball,object_t* paddle);
 

@@ -1,4 +1,4 @@
-#include <stdbool.h>
+
 #include "collision.h"
 
 
@@ -16,7 +16,7 @@ bool detect_collision(object_t* object_1,object_t* object_2){
     abs_pos obj_2 = get_abs_pos(object_2);
 
     bool y_col = ( obj_1.y_bottom >= obj_2.y_top && obj_1.y_top <= obj_2.y_bottom );
-    bool x_col = ( obj_1.x_left <= obj_2.x_right && obj_1.x_left >= obj_2.x_right );
+    bool x_col = ( obj_1.x_left <= obj_2.x_right && obj_1.x_right >= obj_2.x_left );
     return(y_col && x_col);
 }
 

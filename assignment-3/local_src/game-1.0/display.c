@@ -33,18 +33,13 @@ void display_init()
     buf = mmap(NULL, disp_size, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
     assert(buf != MAP_FAILED);
 
-    
     display_fill_all(BLACK);
 
-    display_draw_rect(0, 10, 20, 100, RED);
-    display_draw_rect(30, 10, 20, 100, WHITE);
-    display_draw_rect(60, 10, 20, 100, BLUE);
-
-
+    display_update_all();
 }
 
 
-void display_fill_all(uint16_t color)
+void display_fill_all(int color)
 {
     for (int i = 0; i < info.xres * info.yres; i++) {
         buf[i] = color;
@@ -52,17 +47,16 @@ void display_fill_all(uint16_t color)
 }
 
 
-void display_draw_rect(int x, int y, int width, int height, int color)
+void display_draw_rect(rect_t rect, int color)
 {
-    for (int row = y; row < y+height; row++) {
-        for (int col = x; col < x+width; col++) {
-            if (row + height > info.yres) break;
-            if (col + width > info.xres) break;
-            buf[row*info.xres + col] = color;
+    for (int y = rect.y; y < rect.y+rect.height; y++) {
+        if (y > info.yres) break;
+        for (int x = rect.x; x < rect.x+rect.width; x++) {
+            if (x > info.xres) break;
+            buf[y*info.xres + x] = color;
         }
     }
 }
-
 
 
 // WIP
@@ -97,3 +91,4 @@ void display_close()
     munmap(buf, disp_size);
     close(fb);
 }
+

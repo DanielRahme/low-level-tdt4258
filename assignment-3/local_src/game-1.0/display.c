@@ -83,7 +83,7 @@ void display_draw_smile(rect_t rect, int color)
         if (y > info.yres) break;
         for (int x = rect.x; x < rect.x+rect.width; x++) {
             if (x > info.xres) break;
-            buf[y*info.xres + x] = smile[x][y];
+            buf[y*info.xres + x] = smile[x-rect.x][y-rect.y];
         }
     }
 }

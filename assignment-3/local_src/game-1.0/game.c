@@ -17,6 +17,23 @@
 
 int main(int argc, char *argv[])
 {
+    int fd = open("/dev/gamepad", O_RDONLY);
+    //int fd = open("/dev/mychardev", O_RDONLY);
+    if (fd < 0) {
+        printf("Fuck we did not open\n");
+    }
+
+    int my_buff = 0;
+    int read_return_val = read(fd, &my_buff, 4);
+
+    if (read_return_val < 0) {
+        printf("Fuck we did not read: %d\n", read_return_val);
+    }
+
+    printf("\nRead value: %d, returned value from func: %d\n", my_buff, read_return_val);
+    close(fd);
+
+    /*
     display_init();
     display_update_all();
 
@@ -33,6 +50,7 @@ int main(int argc, char *argv[])
     }
 
     display_close();
+    */
 
     printf("Hello World, I'm game!\n");
     exit(EXIT_SUCCESS);

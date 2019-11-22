@@ -5,17 +5,23 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
+#include <linux/ioport.h>
+#include <asm/io.h>
+
+
 #include "efm32gg.h"
+
+#define DRIVER_NAME "gamepad"
 
 static dev_t dev;
 static struct cdev cdev;
 static struct class *cl;
-static struct fasync_struct *fasync_queue;
 
 
 static int my_read(struct file *file, char __user *user_buffer, size_t size, loff_t *offset)
 {
-    unsigned int value = ioread32(GPIO_PC_DIN);
+    // First 8 bits are buttons value, Activ low so it is inverted
+    unsigned char value = ~(ioread32(GPIO_PC_DIN) & 0xff);
     copy_to_user(user_buffer, &value, sizeof(value));
     return sizeof(value);
 }
@@ -45,7 +51,7 @@ struct file_operations my_fops =
 
 static int register_device()
 {
-    if (alloc_chrdev_region(&dev, 0, 1, "gamepad") < 0) {
+    if (alloc_chrdev_region(&dev, 0, 1, DRIVER_NAME) < 0) {
         printk(KERN_INFO "Failed to allocate\n", MAJOR(dev), MINOR(dev));
         return -1;
     }
@@ -54,8 +60,8 @@ static int register_device()
 
     cdev_init(&cdev, &my_fops);
     cdev_add(&cdev, dev, 1);
-    cl = class_create(THIS_MODULE, "gamepad");
-    device_create(cl, NULL, dev, NULL, "gamepad");
+    cl = class_create(THIS_MODULE, DRIVER_NAME);
+    device_create(cl, NULL, dev, NULL, DRIVER_NAME);
 
     // Init GPIO
     if (request_mem_region(GPIO_PC_MODEL, 1, DRIVER_NAME ) == NULL ) {

@@ -21,16 +21,24 @@ int main(int argc, char *argv[])
     //int fd = open("/dev/mychardev", O_RDONLY);
     if (fd < 0) {
         printf("Fuck we did not open\n");
+        close(fd);
+        exit(EXIT_SUCCESS);
     }
 
-    int my_buff = 0;
-    int read_return_val = read(fd, &my_buff, 4);
+    while (1) {
+        unsigned char buttons = 0;
+        int read_return_val = read(fd, &buttons, 1);
 
-    if (read_return_val < 0) {
-        printf("Fuck we did not read: %d\n", read_return_val);
+        if (read_return_val < 0) {
+            printf("Fuck we did not read: %d\n", read_return_val);
+        }
+
+        printf("\nRead value: %ud, returned value from func: %d\n", buttons, read_return_val);
+
+        // wait
+        volatile unsigned long long i;
+        for (i = 0; i < 40000; i++);
     }
-
-    printf("\nRead value: %d, returned value from func: %d\n", my_buff, read_return_val);
     close(fd);
 
     /*

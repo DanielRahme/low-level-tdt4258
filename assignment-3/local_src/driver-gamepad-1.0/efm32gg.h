@@ -1,10 +1,8 @@
-#include <stdint.h>
+//#include <stdint.h>
 
 // GPIO
 
 #define GPIO_PA_BASE 0x40006000
-#define GPIO_PA_SIZE 0x11C
-
 #define GPIO_PB_BASE 0x40006024
 #define GPIO_PC_BASE 0x40006048
 

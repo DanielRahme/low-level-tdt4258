@@ -5,7 +5,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
-
+#include "efm32gg.h"
 
 static dev_t dev;
 static struct cdev cdev;
@@ -15,7 +15,7 @@ static struct fasync_struct *fasync_queue;
 
 static int my_read(struct file *file, char __user *user_buffer, size_t size, loff_t *offset)
 {
-    int value = 69;
+    unsigned int value = ioread32(GPIO_PC_DIN);
     copy_to_user(user_buffer, &value, sizeof(value));
     return sizeof(value);
 }
@@ -58,6 +58,21 @@ static int register_device()
     device_create(cl, NULL, dev, NULL, "gamepad");
 
     // Init GPIO
+    if (request_mem_region(GPIO_PC_MODEL, 1, DRIVER_NAME ) == NULL ) {
+        printk(KERN_ALERT "Error requesting GPIO_PC_MODEL memory region, already in use?\n");
+        return -1;
+    }
+    if (request_mem_region(GPIO_PC_DOUT, 1, DRIVER_NAME ) == NULL ) {
+        printk(KERN_ALERT "Error requesting GPIO_PC_DOUT memory region, already in use?\n");
+        return -1;
+    }
+     if (request_mem_region(GPIO_PC_DIN, 1, DRIVER_NAME ) == NULL ) {
+        printk(KERN_ALERT "Error requesting GPIO_PC_DIN memory region, already in use?\n");
+        return -1;
+    }
+    iowrite32(0x33333333, GPIO_PC_MODEL);
+    iowrite32(0xFF, GPIO_PC_DOUT);
+    //iowrite32(0x22222222, GPIO_EXTIPSELL);
 
     printk(KERN_WARNING "Gamepad-driver succeeded to register");
     return 0;
@@ -90,6 +105,11 @@ static int __init template_init(void)
 // Run when exiting the device
 static void __exit template_cleanup(void)
 {
+        /* Release memory regions */
+    release_mem_region(GPIO_PC_MODEL, 1);
+    release_mem_region(GPIO_PC_DIN, 1);
+    release_mem_region(GPIO_PC_DOUT, 1);
+
     printk("Short life for a small module...\n");
     unregister_device();
 }

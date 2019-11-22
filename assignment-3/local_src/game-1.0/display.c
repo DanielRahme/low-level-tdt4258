@@ -58,6 +58,19 @@ void display_draw_rect(rect_t rect, int color)
     }
 }
 
+void display_draw_smile(rect_t rect, int color)
+{
+    for (int y = rect.y; y < rect.y+rect.height; y++) {
+        if (y > info.yres) break;
+        for (int x = rect.x; x < rect.x+rect.width; x++) {
+            if (x > info.xres) break;
+            buf[y*info.xres + x] = smile[x][y];
+        }
+    }
+}
+
+
+
 
 void display_update(rect_t my_rect)
 {

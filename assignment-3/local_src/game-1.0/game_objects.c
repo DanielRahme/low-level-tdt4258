@@ -139,7 +139,7 @@ void redraw_ball(rect_t old_ball_pos)
     const rect_t combined_area = {x_min, y_min, w, h};
 
     display_draw_rect(old_ball_pos, BLACK);
-    display_draw_rect(ball.pos, ball.color);
+    display_draw_smile(ball.pos, ball.color);
     display_update(combined_area);
 }
 

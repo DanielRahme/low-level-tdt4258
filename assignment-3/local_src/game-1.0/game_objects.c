@@ -11,6 +11,18 @@ static object_t player_1;
 static object_t player_2;
 static object_t ball;
 
+static int player_winner = 0;
+
+int get_winner()
+{
+    return player_winner;
+}
+
+int ball_is_alive()
+{
+    player_winner = game_over(&ball, &player_2, &player_1);
+    return player_winner == 0;
+}
 
 void objects_init()
 {
@@ -37,7 +49,7 @@ void objects_init()
     ball.color = WHITE;
     display_draw_rect(ball.pos, ball.color);
 
-    //display_update_all();
+    display_update_all();
 }
 
 
@@ -106,17 +118,11 @@ void update_players_pos(player_btn_t btn_p1, player_btn_t btn_p2)
 }
 
 
-void update_players()
+void update_players(unsigned char buttons)
 {
-    // TODO:
-    // Read buttons
-    //const int btn_1 = read(btn_p1);
-    //const int btn_2 = read(btn_p2);
-
-    // Update player pos
-    //update_players_pos(btn_1, btn_2);
-
-    // Draw new player pos
+    const unsigned char btn_p1 = buttons & 0x0f;
+    const unsigned char btn_p2 = buttons & 0xf0;
+    update_players_pos(btn_p1, btn_p2);
     redraw_players();
 }
 
@@ -158,4 +164,45 @@ void update_ball()
     // Redraw new position (clear old, draw new);
     redraw_ball(old_ball_pos);
     physics(&ball, &player_1, &player_2);
+}
+
+
+////////////////////////////////////////////////
+//              SCREENS
+////////////////////////////////////////////////
+void start_screen()
+{
+    // Blue bg
+    rect_t blue_bg = {0, 0, SCREEN_X, SCREEN_Y};
+    display_draw_rect(blue_bg, BLUE);
+
+    const int t = 3; // Thickness
+    const int x = 80;
+    const int y = 80;
+    // Horisontal cross
+    rect_t yellow_h = {x, 0, x+t, SCREEN_Y};
+    display_draw_rect(yellow_h, YELLOW);
+
+    // Vertical cross
+    rect_t yellow_v = {0, y, SCREEN_X, y+t};
+    display_draw_rect(yellow_v, YELLOW);
+
+    display_update_all();
+}
+
+
+void screen_winner_p1()
+{
+    rect_t p1_side = {0, 0, SCREEN_X, SCREEN_Y};
+    display_draw_rect(p1_side, player_1.color);
+
+    display_update_all();
+}
+
+
+void screen_winner_p2()
+{
+    rect_t p1_side = {0, 0, SCREEN_X, SCREEN_Y};
+    display_draw_rect(p1_side, player_2.color);
+    display_update_all();
 }

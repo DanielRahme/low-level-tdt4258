@@ -10,6 +10,7 @@
 #define RED     0xf800
 #define GREEN   0x07e0
 #define BLUE    0x001f
+#define YELLOW 0xffc5
 
 typedef struct {
     int x;

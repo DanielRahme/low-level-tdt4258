@@ -28,10 +28,10 @@ void physics(object_t* ball,object_t* player_2, object_t* player_1 ){
 int game_over(object_t* ball,object_t* player_2, object_t* player_1 ) {
     int winner = 0;
     if (!paddle_collision(ball, player_1) &&  (goal_collision(ball, LEFT))){
-        winner = 1;
+        winner = 2;
     }
     if (!paddle_collision(ball, player_2) &&  (goal_collision(ball, RIGHT))){
-        winner = 2;
+        winner = 1;
     }
 return winner;
 }

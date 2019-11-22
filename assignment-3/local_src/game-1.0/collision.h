@@ -1,4 +1,6 @@
+
 #include <stdbool.h>
+
 #include "game_objects.h"
 #include "display.h"
 
@@ -13,6 +15,7 @@
 #define RIGHT (DISP_WIDTH - PADDLE_WIDTH - 1)
 #define TOP 0
 #define BOTTOM DISP_HEIGHT
+
 
 typedef struct
 {

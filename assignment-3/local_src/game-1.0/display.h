@@ -46,6 +46,7 @@ void display_update_all();
 void display_close();
 void display_fill_all(int color);
 void display_draw_rect(rect_t rect, int color);
+void display_draw_smile(rect_t rect, int color); // :)
 void display_update(rect_t my_rect);
 
 #endif
